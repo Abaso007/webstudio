@@ -1,15 +1,19 @@
-import { describe, test, expect } from "@jest/globals";
-import { parse } from "./plugin-markdown";
-import { breakpointsStore } from "../nano-states";
+import { describe, test, expect } from "vitest";
+import { __testing__ } from "./plugin-markdown";
+import { $breakpoints } from "../nano-states";
 
 const options = { generateId: () => "123" };
 
-breakpointsStore.set(new Map([["0", { id: "0", label: "base" }]]));
+const { parse } = __testing__;
+
+$breakpoints.set(new Map([["0", { id: "0", label: "base" }]]));
 
 describe("Plugin Markdown", () => {
   test("paragraph", () => {
     expect(parse("xyz", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -31,6 +35,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -41,6 +46,8 @@ describe("Plugin Markdown", () => {
   test("h1", () => {
     expect(parse("# heading", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -70,6 +77,7 @@ describe("Plugin Markdown", () => {
       "value": "h1",
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -80,6 +88,8 @@ describe("Plugin Markdown", () => {
   test("h6", () => {
     expect(parse("###### heading", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -109,6 +119,7 @@ describe("Plugin Markdown", () => {
       "value": "h6",
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -119,6 +130,8 @@ describe("Plugin Markdown", () => {
   test("bold 1", () => {
     expect(parse("__bold__", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -151,6 +164,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -161,6 +175,8 @@ describe("Plugin Markdown", () => {
   test("bold 2", () => {
     expect(parse("**bold**", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -193,6 +209,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -203,6 +220,8 @@ describe("Plugin Markdown", () => {
   test("italic 1", () => {
     expect(parse("_italic_", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -235,6 +254,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -245,6 +265,8 @@ describe("Plugin Markdown", () => {
   test("italic 2", () => {
     expect(parse("*italic*", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -277,6 +299,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -287,6 +310,8 @@ describe("Plugin Markdown", () => {
   test("link", () => {
     expect(parse('[link](/uri "Title")', options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -334,6 +359,7 @@ describe("Plugin Markdown", () => {
       "value": "Title",
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -344,6 +370,8 @@ describe("Plugin Markdown", () => {
   test("image", () => {
     expect(parse('![foo](/url "title")', options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -393,6 +421,7 @@ describe("Plugin Markdown", () => {
       "value": "foo",
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -409,6 +438,8 @@ describe("Plugin Markdown", () => {
       )
     ).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -434,6 +465,7 @@ describe("Plugin Markdown", () => {
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -450,6 +482,8 @@ describe("Plugin Markdown", () => {
       )
     ).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -472,6 +506,7 @@ baz",
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -482,6 +517,8 @@ baz",
   test("blockquote", () => {
     expect(parse("> bar", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -514,6 +551,7 @@ baz",
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -524,6 +562,8 @@ baz",
   test("inline code", () => {
     expect(parse("`foo`", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -533,12 +573,7 @@ baz",
   "dataSources": [],
   "instances": [
     {
-      "children": [
-        {
-          "type": "text",
-          "value": "foo",
-        },
-      ],
+      "children": [],
       "component": "CodeText",
       "id": "123",
       "type": "instance",
@@ -555,7 +590,16 @@ baz",
       "type": "instance",
     },
   ],
-  "props": [],
+  "props": [
+    {
+      "id": "123",
+      "instanceId": "123",
+      "name": "code",
+      "type": "string",
+      "value": "foo",
+    },
+  ],
+  "resources": [],
   "styleSourceSelections": [
     {
       "instanceId": "123",
@@ -588,6 +632,8 @@ baz",
   test("code", () => {
     expect(parse("```js meta\nfoo\n```", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -597,12 +643,7 @@ baz",
   "dataSources": [],
   "instances": [
     {
-      "children": [
-        {
-          "type": "text",
-          "value": "foo",
-        },
-      ],
+      "children": [],
       "component": "CodeText",
       "id": "123",
       "type": "instance",
@@ -612,11 +653,19 @@ baz",
     {
       "id": "123",
       "instanceId": "123",
+      "name": "code",
+      "type": "string",
+      "value": "foo",
+    },
+    {
+      "id": "123",
+      "instanceId": "123",
       "name": "lang",
       "type": "string",
       "value": "js",
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -627,6 +676,8 @@ baz",
   test("list unordered", () => {
     expect(parse("- one", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -678,6 +729,7 @@ baz",
       "value": false,
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -688,6 +740,8 @@ baz",
   test("list ordered", () => {
     expect(parse("3. one", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -746,6 +800,7 @@ baz",
       "value": 3,
     },
   ],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],
@@ -756,6 +811,8 @@ baz",
   test("thematic break | separator", () => {
     expect(parse("---", options)).toMatchInlineSnapshot(`
 {
+  "assets": [],
+  "breakpoints": [],
   "children": [
     {
       "type": "id",
@@ -772,6 +829,7 @@ baz",
     },
   ],
   "props": [],
+  "resources": [],
   "styleSourceSelections": [],
   "styleSources": [],
   "styles": [],

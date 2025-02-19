@@ -1,14 +1,10 @@
 import { Box as Box } from "@webstudio-is/sdk-components-react";
 import { Label as Label } from "../components";
 
-type Params = Record<string, string | undefined>;
-type Resources = Record<string, unknown>;
-const Page = (_props: { params: Params; resources: Resources }) => {
+const Component = () => {
   return (
-    <Box data-ws-id="root" data-ws-component="Box">
-      <Label data-ws-id="1" data-ws-component="Label">
-        {"Form Label"}
-      </Label>
+    <Box className={"w-box"}>
+      <Label className={"w-label w-label-1"}>{"Form Label"}</Label>
     </Box>
   );
 };
@@ -23,25 +19,8 @@ const Story = {
       <>
         <style>
           {`
-html {margin: 0; display: grid; min-height: 100%}
 @media all {
-  body:where([data-ws-component="Body"]) {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    font-family: Arial, Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.2;
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale
-  }
-  div:where([data-ws-component="Box"]) {
+  :where(div.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -49,7 +28,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  address:where([data-ws-component="Box"]) {
+  :where(address.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -57,7 +36,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  article:where([data-ws-component="Box"]) {
+  :where(article.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -65,7 +44,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  aside:where([data-ws-component="Box"]) {
+  :where(aside.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -73,7 +52,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  figure:where([data-ws-component="Box"]) {
+  :where(figure.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -81,7 +60,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  footer:where([data-ws-component="Box"]) {
+  :where(footer.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -89,7 +68,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  header:where([data-ws-component="Box"]) {
+  :where(header.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -97,7 +76,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  main:where([data-ws-component="Box"]) {
+  :where(main.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -105,7 +84,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  nav:where([data-ws-component="Box"]) {
+  :where(nav.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -113,7 +92,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  section:where([data-ws-component="Box"]) {
+  :where(section.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -121,7 +100,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  label:where([data-ws-component="Label"]) {
+  :where(label.w-label) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -131,7 +110,7 @@ html {margin: 0; display: grid; min-height: 100%}
   }
 }
 @media all {
-  [data-ws-id="1"] {
+  .w-label-1 {
     font-size: 0.875rem;
     line-height: 1;
     font-weight: 500
@@ -139,7 +118,7 @@ html {margin: 0; display: grid; min-height: 100%}
 }
       `}
         </style>
-        <Page params={{}} resources={{}} />
+        <Component />
       </>
     );
   },

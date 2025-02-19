@@ -38,6 +38,12 @@ const colors = {
     backgroundHover: theme.colors.backgroundRemoteHover,
     icon: theme.colors.foregroundRemoteMain,
   },
+  inactive: {
+    border: "transparent",
+    background: "transparent",
+    backgroundHover: "transparent",
+    icon: theme.colors.foregroundSubtle,
+  },
 } as const;
 
 const perColorStyle = (color: (typeof labelColors)[number]) => ({
@@ -56,8 +62,8 @@ const perColorStyle = (color: (typeof labelColors)[number]) => ({
 
 const style = css({
   display: "flex",
-  width: theme.spacing[11],
-  height: theme.spacing[11],
+  width: theme.spacing[10],
+  height: theme.spacing[10],
   boxSizing: "border-box",
   alignItems: "center",
   justifyContent: "center",
@@ -70,6 +76,7 @@ const style = css({
       local: perColorStyle("local"),
       overwritten: perColorStyle("overwritten"),
       remote: perColorStyle("remote"),
+      inactive: perColorStyle("inactive"),
     },
   },
   defaultVariants: { color: "default" },

@@ -1,24 +1,11 @@
-import { useState } from "react";
 import { Box as Box } from "@webstudio-is/sdk-components-react";
 import { Switch as Switch, SwitchThumb as SwitchThumb } from "../components";
 
-type Params = Record<string, string | undefined>;
-type Resources = Record<string, unknown>;
-const Page = (_props: { params: Params; resources: Resources }) => {
-  let [switchChecked, set$switchChecked] = useState<any>(false);
-  let onCheckedChange = (checked: any) => {
-    switchChecked = checked;
-    set$switchChecked(switchChecked);
-  };
+const Component = () => {
   return (
-    <Box data-ws-id="root" data-ws-component="Box">
-      <Switch
-        data-ws-id="1"
-        data-ws-component="Switch"
-        checked={switchChecked}
-        onCheckedChange={onCheckedChange}
-      >
-        <SwitchThumb data-ws-id="6" data-ws-component="SwitchThumb" />
+    <Box className={"w-box"}>
+      <Switch className={"w-switch w-switch-1"}>
+        <SwitchThumb className={"w-switch-thumb w-switch-thumb-1"} />
       </Switch>
     </Box>
   );
@@ -34,25 +21,8 @@ const Story = {
       <>
         <style>
           {`
-html {margin: 0; display: grid; min-height: 100%}
 @media all {
-  body:where([data-ws-component="Body"]) {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    font-family: Arial, Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.2;
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale
-  }
-  div:where([data-ws-component="Box"]) {
+  :where(div.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -60,7 +30,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  address:where([data-ws-component="Box"]) {
+  :where(address.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -68,7 +38,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  article:where([data-ws-component="Box"]) {
+  :where(article.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -76,7 +46,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  aside:where([data-ws-component="Box"]) {
+  :where(aside.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -84,7 +54,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  figure:where([data-ws-component="Box"]) {
+  :where(figure.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -92,7 +62,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  footer:where([data-ws-component="Box"]) {
+  :where(footer.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -100,7 +70,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  header:where([data-ws-component="Box"]) {
+  :where(header.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -108,7 +78,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  main:where([data-ws-component="Box"]) {
+  :where(main.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -116,7 +86,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  nav:where([data-ws-component="Box"]) {
+  :where(nav.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -124,7 +94,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  section:where([data-ws-component="Box"]) {
+  :where(section.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -132,36 +102,19 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  button:where([data-ws-component="Switch"]) {
+  :where(button.w-switch) {
     font-family: inherit;
     font-size: 100%;
     line-height: 1.15;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
     box-sizing: border-box;
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
     text-transform: none;
     background-color: transparent;
     background-image: none;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px
+    border: 0px solid rgba(226, 232, 240, 1);
+    margin: 0;
+    padding: 0px
   }
-  span:where([data-ws-component="SwitchThumb"]) {
+  :where(span.w-switch-thumb) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -171,51 +124,39 @@ html {margin: 0; display: grid; min-height: 100%}
   }
 }
 @media all {
-  [data-ws-id="1"] {
+  .w-switch-1 {
     display: inline-flex;
     height: 24px;
     width: 44px;
-    flex-grow: 0;
+    flex-shrink: 0;
     cursor: pointer;
     align-items: center;
     border-top-left-radius: 9999px;
     border-top-right-radius: 9999px;
     border-bottom-right-radius: 9999px;
     border-bottom-left-radius: 9999px;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: transparent;
-    border-right-color: transparent;
-    border-bottom-color: transparent;
-    border-left-color: transparent;
-    border-top-width: 2px;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    border-left-width: 2px;
     transition-property: all;
+    transition-duration: 150ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms
+    transition-delay: 0s;
+    transition-behavior: normal;
+    border: 2px solid transparent
   }
-  [data-ws-id="1"]:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
-  }
-  [data-ws-id="1"]:disabled {
+  .w-switch-1:disabled {
     cursor: not-allowed;
     opacity: 0.5
   }
-  [data-ws-id="1"][data-state=checked] {
+  .w-switch-1:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1);
+    outline: medium none currentcolor
+  }
+  .w-switch-1[data-state="checked"] {
     background-color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="1"][data-state=unchecked] {
+  .w-switch-1[data-state="unchecked"] {
     background-color: rgba(226, 232, 240, 1)
   }
-  [data-ws-id="6"] {
+  .w-switch-thumb-1 {
     pointer-events: none;
     display: block;
     height: 1.25rem;
@@ -224,22 +165,24 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 9999px;
     border-bottom-right-radius: 9999px;
     border-bottom-left-radius: 9999px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 1);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     transition-property: transform;
+    transition-duration: 150ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms
+    transition-delay: 0s;
+    transition-behavior: normal
   }
-  [data-ws-id="6"][data-state=checked] {
+  .w-switch-thumb-1[data-state="checked"] {
     transform: translateX(20px)
   }
-  [data-ws-id="6"][data-state=unchecked] {
+  .w-switch-thumb-1[data-state="unchecked"] {
     transform: translateX(0px)
   }
 }
       `}
         </style>
-        <Page params={{}} resources={{}} />
+        <Component />
       </>
     );
   },

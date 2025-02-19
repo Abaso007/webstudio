@@ -1,67 +1,38 @@
-import { prisma } from "@webstudio-is/prisma-client";
+import type { AppContext } from "@webstudio-is/trpc-interface/index.server";
+import env from "~/env/env.server";
 
-/**
- * Plan features are available on the client, do not use any secrets, 3rd party ids etc
- **/
-export type UserPlanFeatures = {
-  allowShareAdminLinks: boolean;
-  maxDomainsAllowedPerUser: number;
-  hasSubscription: boolean;
-  hasProPlan: boolean;
-};
-
-// No strings - no secrets
-({}) as UserPlanFeatures satisfies Record<string, boolean | number>;
-
-export const getTokenPlanFeatures = async (token: string) => {
-  const projectOwnerIdByToken = await prisma.authorizationToken.findUnique({
-    where: {
-      token,
-    },
-    select: {
-      project: {
-        select: {
-          id: true,
-          userId: true,
-        },
-      },
-    },
-  });
-
-  if (projectOwnerIdByToken === null) {
-    throw new Error(`Project owner can't be found for token ${token}`);
-  }
-
-  const userId = projectOwnerIdByToken.project.userId;
-  if (userId === null) {
-    throw new Error(
-      `Project ${projectOwnerIdByToken.project.id} has null instead of userId`
-    );
-  }
-
-  return await getUserPlanFeatures(userId);
-};
+export type UserPlanFeatures = NonNullable<AppContext["userPlanFeatures"]>;
 
 export const getUserPlanFeatures = async (
-  userId: string
+  userId: string,
+  postgrest: AppContext["postgrest"]
 ): Promise<UserPlanFeatures> => {
-  const userProducts = await prisma.userProduct.findMany({
-    where: { userId },
-    select: {
-      customerId: true,
-      subscriptionId: true,
-      product: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          features: true,
-          meta: true,
-          images: true,
-        },
-      },
-    },
-  });
+  const userProductsResult = await postgrest.client
+    .from("UserProduct")
+    .select("customerId, subscriptionId, productId")
+    .eq("userId", userId);
+
+  if (userProductsResult.error) {
+    console.error(userProductsResult.error);
+    throw new Error("Failed to fetch user products");
+  }
+
+  const userProducts = userProductsResult.data;
+
+  const productsResult = await postgrest.client
+    .from("Product")
+    .select("name")
+    .in(
+      "id",
+      userProducts.map(({ productId }) => productId)
+    );
+
+  if (productsResult.error) {
+    console.error(productsResult.error);
+    throw new Error("Failed to fetch products");
+  }
+
+  const products = productsResult.data;
 
   // This is fast and dirty implementation
   // @todo: implement this using products meta, custom table with aggregated transaction info
@@ -72,15 +43,32 @@ export const getUserPlanFeatures = async (
 
     return {
       allowShareAdminLinks: true,
+      allowDynamicData: true,
+      maxContactEmails: 5,
       maxDomainsAllowedPerUser: Number.MAX_SAFE_INTEGER,
       hasSubscription,
       hasProPlan: true,
+      planName: products[0].name,
+    };
+  }
+
+  if (env.USER_PLAN === "pro") {
+    return {
+      allowShareAdminLinks: true,
+      allowDynamicData: true,
+      maxContactEmails: 5,
+      maxDomainsAllowedPerUser: Number.MAX_SAFE_INTEGER,
+      hasSubscription: true,
+      hasProPlan: true,
+      planName: "env.USER_PLAN Pro",
     };
   }
 
   return {
     allowShareAdminLinks: false,
-    maxDomainsAllowedPerUser: 5,
+    allowDynamicData: false,
+    maxContactEmails: 0,
+    maxDomainsAllowedPerUser: 1,
     hasSubscription: false,
     hasProPlan: false,
   };

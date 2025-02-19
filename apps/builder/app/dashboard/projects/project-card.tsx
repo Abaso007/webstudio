@@ -1,97 +1,60 @@
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuPortal,
   DropdownMenuItem,
   IconButton,
   css,
   Flex,
-  Grid,
   Text,
+  truncate,
   theme,
+  Tooltip,
+  rawTheme,
+  Link,
   Box,
 } from "@webstudio-is/design-system";
-import { MenuIcon } from "@webstudio-is/icons";
-import type { DashboardProject } from "@webstudio-is/prisma-client";
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
-import { builderPath, getPublishedUrl } from "~/shared/router-utils";
+import { InfoCircleIcon, EllipsesIcon } from "@webstudio-is/icons";
+import type { DashboardProject } from "@webstudio-is/dashboard";
+import { builderUrl } from "~/shared/router-utils";
 import {
   RenameProjectDialog,
   DeleteProjectDialog,
-  useDuplicate,
+  useCloneProject,
   ShareProjectDialog,
-  DuplicateProjectDialog,
 } from "./project-dialogs";
-import { Thumbnail, ThumbnailLink } from "./thumbnail-link";
-import { useNavigation } from "@remix-run/react";
-import { Spinner } from "../spinner";
+import {
+  ThumbnailLinkWithAbbr,
+  ThumbnailLinkWithImage,
+} from "../shared/thumbnail";
+import { Spinner } from "../shared/spinner";
+import { Card, CardContent, CardFooter } from "../shared/card";
 
-const containerStyle = css({
-  overflow: "hidden",
-  aspectRatio: "8 / 7",
-  borderWidth: 1,
-  borderStyle: "solid",
-  borderColor: theme.colors.borderMain,
-  borderRadius: theme.borderRadius[4],
-  background: theme.colors.brandBackgroundProjectCardBack,
-  "&:hover, &:focus-within": {
-    boxShadow: theme.shadows.brandElevationBig,
-  },
-  "&:focus-visible": {
-    outline: `2px solid ${theme.colors.borderFocus}`,
-  },
-});
-
-const thumbnailStyle = css({
-  position: "relative",
-  overflow: "hidden",
-  minWidth: "100%",
-});
-
-const footerStyle = css({
-  background: theme.colors.brandBackgroundProjectCardTextArea,
-  height: theme.spacing[17],
-  py: theme.spacing[5],
-  px: theme.spacing[7],
-});
-
-const usePublishedLink = ({ domain }: { domain: string }) => {
-  const [url, setUrl] = useState<URL>();
-
-  useEffect(() => {
-    // It uses `window.location` to detect the default values when running locally localhost,
-    // so it needs an effect to avoid hydration errors.
-    setUrl(new URL(getPublishedUrl(domain)));
-  }, [domain]);
-
-  return { url };
-};
+const infoIconStyle = css({ flexShrink: 0 });
 
 const PublishedLink = ({
   domain,
+  publisherHost,
   tabIndex,
 }: {
   domain: string;
+  publisherHost: string;
   tabIndex: number;
 }) => {
-  const { url } = usePublishedLink({ domain });
+  const publishedOrigin = `https://${domain}.${publisherHost}`;
   return (
-    <Text
-      as="a"
-      href={url?.href}
+    <Link
+      href={publishedOrigin}
       target="_blank"
-      truncate
-      color="subtle"
+      rel="noreferrer"
       tabIndex={tabIndex}
-      css={{
-        "&:not(:hover)": {
-          textDecoration: "none",
-        },
-      }}
+      color="subtle"
+      underline="hover"
+      css={truncate()}
     >
-      {url?.host}
-    </Text>
+      {new URL(publishedOrigin).host}
+    </Link>
   );
 };
 
@@ -117,131 +80,163 @@ const Menu = ({
           tabIndex={tabIndex}
           css={{ alignSelf: "center" }}
         >
-          <MenuIcon width={15} height={15} />
+          <EllipsesIcon width={15} height={15} />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={onDuplicate}>Duplicate</DropdownMenuItem>
-          <DropdownMenuItem onSelect={onRename}>Rename</DropdownMenuItem>
-          <DropdownMenuItem onSelect={onShare}>Share</DropdownMenuItem>
-          <DropdownMenuItem onSelect={onDelete}>Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenuPortal>
+      <DropdownMenuContent align="end" css={{ width: theme.spacing[24] }}>
+        <DropdownMenuItem onSelect={onDuplicate}>Duplicate</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onRename}>Rename</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onShare}>Share</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onDelete}>Delete</DropdownMenuItem>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
-const useProjectCard = () => {
-  const thumbnailRef = useRef<HTMLAnchorElement & HTMLDivElement>(null);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    const elements: Array<HTMLElement> = Array.from(
-      event.currentTarget.querySelectorAll(`[tabIndex='-1']`)
-    );
-    const currentIndex = elements.indexOf(
-      document.activeElement as HTMLElement
-    );
-    switch (event.key) {
-      case "Enter": {
-        // Only open project on enter when the project card container was focused,
-        // otherwise we will always open project, even when a menu was pressed.
-        if (event.currentTarget === document.activeElement) {
-          thumbnailRef.current?.click();
-        }
-        break;
-      }
-      case "ArrowUp":
-      case "ArrowRight": {
-        const nextElement = elements.at(currentIndex + 1) ?? elements[0];
-        nextElement?.focus();
-        break;
-      }
-      case "ArrowDown":
-      case "ArrowLeft": {
-        const nextElement = elements.at(currentIndex - 1) ?? elements[0];
-        nextElement?.focus();
-        break;
-      }
-    }
-  };
-
-  return {
-    thumbnailRef,
-    handleKeyDown,
-  };
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
-type ProjectCardProps = Pick<
-  DashboardProject,
-  "id" | "title" | "domain" | "isPublished"
-> & { hasProPlan: boolean };
+type ProjectCardProps = {
+  project: DashboardProject;
+  hasProPlan: boolean;
+  publisherHost: string;
+};
 
 export const ProjectCard = ({
-  id,
-  title,
-  domain,
-  isPublished,
+  project: {
+    id,
+    title,
+    domain,
+    isPublished,
+    createdAt,
+    latestBuildVirtual,
+    previewImageAsset,
+  },
   hasProPlan,
+  publisherHost,
+  ...props
 }: ProjectCardProps) => {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
-  const { thumbnailRef, handleKeyDown } = useProjectCard();
-  const handleDuplicate = useDuplicate(id);
-  const { state, location } = useNavigation();
-  const linkPath = builderPath({ projectId: id });
-  // Transition to the project has started, we may need to show a spinner
-  const isTransitioning = state !== "idle" && linkPath === location.pathname;
+  const handleCloneProject = useCloneProject(id);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const linkPath = builderUrl({ origin: window.origin, projectId: id });
+
+    const handleNavigate = (event: NavigateEvent) => {
+      if (event.destination.url === linkPath) {
+        setIsTransitioning(true);
+      }
+    };
+
+    if (window.navigation === undefined) {
+      return;
+    }
+
+    window.navigation.addEventListener("navigate", handleNavigate);
+
+    return () => {
+      window.navigation.removeEventListener("navigate", handleNavigate);
+    };
+  }, [id]);
+
+  const linkPath = builderUrl({ origin: window.origin, projectId: id });
 
   return (
-    <Box as="article" hidden={isHidden}>
-      <Flex
-        direction="column"
-        align="center"
-        shrink={false}
-        className={containerStyle()}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
+    <Card hidden={isHidden} {...props}>
+      <CardContent
+        css={{
+          background: theme.colors.brandBackgroundProjectCardBack,
+          [`&:hover`]: {
+            "--ws-project-card-prefetch-image-background": `url(${linkPath}cgi/empty.gif)`,
+          },
+        }}
       >
-        <Grid className={thumbnailStyle()}>
-          <ThumbnailLink title={title} to={linkPath} ref={thumbnailRef} />
-          {isTransitioning && <Spinner />}
-        </Grid>
+        {/* This div with backgorundImage on card hover is used to prefetch DNS of the project domain on hover. */}
+        <Box
+          css={{
+            backgroundImage: `var(--ws-project-card-prefetch-image-background, none)`,
+            visibility: "hidden",
+            position: "absolute",
+            width: 1,
+            height: 1,
+            left: 0,
+            top: 0,
+            opacity: 0,
+          }}
+        />
 
-        <Flex
-          justify="between"
-          shrink={false}
-          alignSelf="stretch"
-          gap="1"
-          className={footerStyle()}
-        >
-          <Flex direction="column" justify="around">
-            <Text variant="titles" truncate css={{ userSelect: "auto" }}>
+        {previewImageAsset ? (
+          <ThumbnailLinkWithImage to={linkPath} name={previewImageAsset.name} />
+        ) : (
+          <ThumbnailLinkWithAbbr title={title} to={linkPath} />
+        )}
+        {isTransitioning && <Spinner delay={0} />}
+      </CardContent>
+      <CardFooter>
+        <Flex direction="column" justify="around" grow>
+          <Flex gap="1">
+            <Text
+              variant="titles"
+              userSelect="text"
+              truncate
+              css={{ textTransform: "none" }}
+            >
               {title}
             </Text>
-            {isPublished ? (
-              <PublishedLink domain={domain} tabIndex={-1} />
-            ) : (
-              <Text color="subtle">Not Published</Text>
-            )}
+            <Tooltip
+              variant="wrapped"
+              content={
+                <Text variant="small">
+                  Created on {formatDate(createdAt)}
+                  {latestBuildVirtual?.publishStatus === "PUBLISHED" && (
+                    <>
+                      <br />
+                      Published on {formatDate(latestBuildVirtual.createdAt)}
+                    </>
+                  )}
+                </Text>
+              }
+            >
+              <InfoCircleIcon
+                color={rawTheme.colors.foregroundSubtle}
+                tabIndex={-1}
+                className={infoIconStyle()}
+              />
+            </Tooltip>
           </Flex>
-          <Menu
-            tabIndex={-1}
-            onDelete={() => {
-              setIsDeleteDialogOpen(true);
-            }}
-            onRename={() => {
-              setIsRenameDialogOpen(true);
-            }}
-            onShare={() => {
-              setIsShareDialogOpen(true);
-            }}
-            onDuplicate={handleDuplicate}
-          />
+          {isPublished ? (
+            <PublishedLink
+              publisherHost={publisherHost}
+              domain={domain}
+              tabIndex={-1}
+            />
+          ) : (
+            <Text color="subtle">Not Published</Text>
+          )}
         </Flex>
-      </Flex>
+        <Menu
+          tabIndex={-1}
+          onDelete={() => {
+            setIsDeleteDialogOpen(true);
+          }}
+          onRename={() => {
+            setIsRenameDialogOpen(true);
+          }}
+          onShare={() => {
+            setIsShareDialogOpen(true);
+          }}
+          onDuplicate={handleCloneProject}
+        />
+      </CardFooter>
       <RenameProjectDialog
         isOpen={isRenameDialogOpen}
         onOpenChange={setIsRenameDialogOpen}
@@ -261,64 +256,6 @@ export const ProjectCard = ({
         projectId={id}
         hasProPlan={hasProPlan}
       />
-    </Box>
-  );
-};
-
-export const ProjectTemplateCard = ({
-  id,
-  title,
-  domain,
-  isPublished,
-}: Omit<ProjectCardProps, "hasProPlan">) => {
-  const { thumbnailRef, handleKeyDown } = useProjectCard();
-  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
-
-  return (
-    <Box as="article">
-      <Flex
-        direction="column"
-        align="center"
-        shrink={false}
-        className={containerStyle()}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-      >
-        <Grid className={thumbnailStyle()}>
-          <Thumbnail
-            title={title}
-            ref={thumbnailRef}
-            onClick={() => {
-              setIsDuplicateDialogOpen(true);
-            }}
-          />
-        </Grid>
-
-        <Flex
-          justify="between"
-          shrink={false}
-          alignSelf="stretch"
-          gap="1"
-          className={footerStyle()}
-        >
-          <Flex direction="column" justify="around">
-            <Text variant="titles" truncate css={{ userSelect: "auto" }}>
-              {title}
-            </Text>
-            {isPublished ? (
-              <PublishedLink domain={domain} tabIndex={-1} />
-            ) : (
-              <Text color="subtle">Not Published</Text>
-            )}
-          </Flex>
-        </Flex>
-      </Flex>
-      <DuplicateProjectDialog
-        isOpen={isDuplicateDialogOpen}
-        onOpenChange={setIsDuplicateDialogOpen}
-        title={title}
-        projectId={id}
-      />
-    </Box>
+    </Card>
   );
 };

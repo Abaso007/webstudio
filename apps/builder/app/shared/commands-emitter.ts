@@ -12,16 +12,14 @@ type CommandMeta<CommandName extends string> = {
   /** listen hotkeys only locally without sharing with other apps */
   disableHotkeyOutsideApp?: boolean;
   /**
-   * input, select and textarea will not invoke command when hotkey is hit
+   * input, select and textarea, content editable and role=option used in Radix will not invoke command when hotkey is hit
    * with the exception when default event behavior is prevented
    **/
-  disableHotkeyOnFormTags?: boolean;
+  disableOnInputLikeControls?: boolean;
   /**
-   * element with contenteditable=true will not invoke command
-   * when hotkey is hit with the exception when default
-   * event behavior is prevented
-   **/
-  disableHotkeyOnContentEditable?: boolean;
+   * hide the command in cmd+k panel
+   */
+  hidden?: boolean;
 };
 
 type CommandHandler = () => void;
@@ -43,8 +41,20 @@ export type Command<CommandName extends string> = CommandMeta<CommandName> & {
 export const $commandMetas = atom(new Map<string, CommandMeta<string>>());
 clientSyncStore.register("commandMetas", $commandMetas);
 
+// Copied from https://github.com/ai/keyux/blob/main/hotkey.js#L1C1-L2C1
+// eslint-disable-next-line no-control-regex
+const nonEnglishLayout = /^[^\x00-\x7F]$/;
+
+const getKey = (event: KeyboardEvent) => {
+  if (nonEnglishLayout.test(event.key) && /^Key.$/.test(event.code)) {
+    return event.code.replace(/^Key/, "").toLowerCase();
+  }
+  return event.key;
+};
+
 const findCommandsMatchingHotkeys = (event: KeyboardEvent) => {
-  const { key, ctrlKey, metaKey, shiftKey, altKey } = event;
+  const { ctrlKey, metaKey, shiftKey, altKey } = event;
+  const key = getKey(event);
   const pressedKeys = new Set<string>();
   pressedKeys.add(key.toLocaleLowerCase());
   if (ctrlKey) {
@@ -57,7 +67,7 @@ const findCommandsMatchingHotkeys = (event: KeyboardEvent) => {
     pressedKeys.add("shift");
   }
   if (altKey) {
-    pressedKeys.add("altKey");
+    pressedKeys.add("alt");
   }
 
   const commandMetas = $commandMetas.get();
@@ -93,14 +103,6 @@ export const createCommandsEmitter = <CommandName extends string>({
     commandHandlers.set(meta.name, handler);
   }
 
-  if (commands.length > 0) {
-    clientSyncStore.createTransaction([$commandMetas], (commandMetas) => {
-      for (const { handler, ...meta } of commands) {
-        commandMetas.set(meta.name, meta);
-      }
-    });
-  }
-
   const emitCommand = (name: CommandName) => {
     const { publish } = $publisher.get();
     // continue to work without emitter
@@ -123,6 +125,16 @@ export const createCommandsEmitter = <CommandName extends string>({
    * actual handlers are executed in app where defined
    */
   const subscribeCommands = () => {
+    // synchronize commands with other apps
+    // whenever current app is initialized
+    if (commands.length > 0) {
+      clientSyncStore.createTransaction([$commandMetas], (commandMetas) => {
+        for (const { handler, ...meta } of commands) {
+          commandMetas.set(meta.name, meta);
+        }
+      });
+    }
+
     const unsubscribePubsub = subscribe("command", ({ name }) => {
       commandHandlers.get(name)?.();
     });
@@ -136,31 +148,24 @@ export const createCommandsEmitter = <CommandName extends string>({
         ) {
           continue;
         }
-        const element = event.target as HTMLElement;
-        const tagName = element.tagName.toLowerCase();
-        const isOnFormTags = ["input", "select", "textarea"].includes(tagName);
-        const isOnContentEditable = element.isContentEditable;
-        const { disableHotkeyOnFormTags, disableHotkeyOnContentEditable } =
-          commandMeta;
-        // in some cases hotkey override default behavior
-        // on form tags and contentEditable
-        // though still proceed when default behavior is prevented
-        // this hack makes hotkeys work on canvas instances of input etc.
-        if (
-          isOnFormTags &&
-          disableHotkeyOnFormTags &&
-          event.defaultPrevented === false
-        ) {
-          continue;
+
+        const { disableOnInputLikeControls } = commandMeta;
+
+        if (disableOnInputLikeControls) {
+          const element = event.target as HTMLElement;
+          const isOnInputLikeControl =
+            ["input", "select", "textarea"].includes(
+              element.tagName.toLowerCase()
+            ) ||
+            element.isContentEditable ||
+            // Detect Radix select, dropdown and co.
+            element.getAttribute("role") === "option";
+
+          if (isOnInputLikeControl) {
+            continue;
+          }
         }
-        if (
-          isOnContentEditable &&
-          disableHotkeyOnContentEditable
-          // editors usually manage history in controlled way
-          // so do not check if event is prevented
-        ) {
-          continue;
-        }
+
         emitted = true;
         if (commandMeta.preventDefault === false) {
           preventDefault = false;

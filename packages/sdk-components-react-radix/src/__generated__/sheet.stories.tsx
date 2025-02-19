@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box as Box,
   Button as Button,
@@ -15,63 +14,41 @@ import {
   DialogClose as DialogClose,
 } from "../components";
 
-type Params = Record<string, string | undefined>;
-type Resources = Record<string, unknown>;
-const Page = (_props: { params: Params; resources: Resources }) => {
-  let [sheetOpen, set$sheetOpen] = useState<any>(false);
-  let onOpenChange = (open: any) => {
-    sheetOpen = open;
-    set$sheetOpen(sheetOpen);
-  };
+const Component = () => {
   return (
-    <Box data-ws-id="root" data-ws-component="Box">
-      <Dialog
-        data-ws-id="1"
-        data-ws-component="Dialog"
-        open={sheetOpen}
-        onOpenChange={onOpenChange}
-      >
-        <DialogTrigger data-ws-id="5" data-ws-component="DialogTrigger">
-          <Button data-ws-id="6" data-ws-component="Button">
+    <Box className={"w-box"}>
+      <Dialog>
+        <DialogTrigger>
+          <Button className={"w-button w-button-1"}>
             <HtmlEmbed
-              data-ws-id="8"
-              data-ws-component="HtmlEmbed"
               code={
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" fill="currentColor" width="100%" height="100%" style="display: block;"><path fill-rule="evenodd" d="M2 5.998a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Zm0 5.5a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Zm0 5.5a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>'
+                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="100%" height="100%" style="display: block;"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M2.667 8h10.666M2.667 4h10.666M2.667 12h10.666"/></svg>'
               }
+              className={"w-html-embed"}
             />
           </Button>
         </DialogTrigger>
-        <DialogOverlay data-ws-id="10" data-ws-component="DialogOverlay">
-          <DialogContent data-ws-id="12" data-ws-component="DialogContent">
-            <Box
-              data-ws-id="14"
-              data-ws-component="Box"
-              tag={"nav"}
-              role={"navigation"}
-            >
-              <Box data-ws-id="17" data-ws-component="Box">
-                <DialogTitle data-ws-id="19" data-ws-component="DialogTitle">
+        <DialogOverlay className={"w-dialog-overlay w-sheet-overlay"}>
+          <DialogContent className={"w-dialog-content w-sheet-content"}>
+            <Box tag={"nav"} role={"navigation"} className={"w-box"}>
+              <Box className={"w-box w-sheet-header"}>
+                <DialogTitle className={"w-dialog-title w-sheet-title"}>
                   {"Sheet Title"}
                 </DialogTitle>
                 <DialogDescription
-                  data-ws-id="21"
-                  data-ws-component="DialogDescription"
+                  className={"w-dialog-description w-sheet-description"}
                 >
                   {"Sheet description text you can edit"}
                 </DialogDescription>
               </Box>
-              <Text data-ws-id="23" data-ws-component="Text">
-                {"The text you can edit"}
-              </Text>
+              <Text className={"w-text"}>{"The text you can edit"}</Text>
             </Box>
-            <DialogClose data-ws-id="24" data-ws-component="DialogClose">
+            <DialogClose className={"w-close-button w-close-button-1"}>
               <HtmlEmbed
-                data-ws-id="26"
-                data-ws-component="HtmlEmbed"
                 code={
-                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="100%" height="100%" style="display: block;"><path fill-rule="evenodd" d="M13.566 2.434a.8.8 0 0 1 0 1.132L9.13 8l4.435 4.434a.8.8 0 0 1-1.132 1.132L8 9.13l-4.434 4.435a.8.8 0 0 1-1.132-1.132L6.87 8 2.434 3.566a.8.8 0 0 1 1.132-1.132L8 6.87l4.434-4.435a.8.8 0 0 1 1.132 0Z" clip-rule="evenodd"/></svg>'
+                  '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="100%" height="100%" style="display: block;"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M12.5 3 3 12.5M3 3l9.5 9.5"/></svg>'
                 }
+                className={"w-html-embed"}
               />
             </DialogClose>
           </DialogContent>
@@ -91,25 +68,8 @@ const Story = {
       <>
         <style>
           {`
-html {margin: 0; display: grid; min-height: 100%}
 @media all {
-  body:where([data-ws-component="Body"]) {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    font-family: Arial, Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.2;
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale
-  }
-  div:where([data-ws-component="Box"]) {
+  :where(div.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -117,7 +77,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  address:where([data-ws-component="Box"]) {
+  :where(address.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -125,7 +85,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  article:where([data-ws-component="Box"]) {
+  :where(article.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -133,7 +93,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  aside:where([data-ws-component="Box"]) {
+  :where(aside.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -141,7 +101,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  figure:where([data-ws-component="Box"]) {
+  :where(figure.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -149,7 +109,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  footer:where([data-ws-component="Box"]) {
+  :where(footer.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -157,7 +117,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  header:where([data-ws-component="Box"]) {
+  :where(header.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -165,7 +125,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  main:where([data-ws-component="Box"]) {
+  :where(main.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -173,7 +133,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  nav:where([data-ws-component="Box"]) {
+  :where(nav.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -181,7 +141,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  section:where([data-ws-component="Box"]) {
+  :where(section.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -189,54 +149,28 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  button:where([data-ws-component="Button"]) {
+  :where(button.w-button) {
     font-family: inherit;
     font-size: 100%;
     line-height: 1.15;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-    text-transform: none
+    border-top-style: solid;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    text-transform: none;
+    margin: 0
   }
-  div:where([data-ws-component="DialogOverlay"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
+  :where(div.w-html-embed) {
+    display: contents;
+    white-space: normal;
+    white-space-collapse: collapse
   }
-  div:where([data-ws-component="DialogContent"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  h2:where([data-ws-component="DialogTitle"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  p:where([data-ws-component="DialogDescription"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  div:where([data-ws-component="Text"]) {
+  :where(div.w-text) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -245,54 +179,57 @@ html {margin: 0; display: grid; min-height: 100%}
     outline-width: 1px;
     min-height: 1em
   }
-  button:where([data-ws-component="DialogClose"]) {
+  :where(button.w-close-button) {
     background-color: transparent;
     background-image: none;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    box-sizing: border-box;
+    text-transform: none;
+    border: 1px solid rgba(226, 232, 240, 1);
+    margin: 0;
+    padding: 0px
+  }
+  :where(div.w-dialog-content) {
+    box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    font-family: inherit;
-    font-size: 100%;
-    line-height: 1.15;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
+    outline-width: 1px
+  }
+  :where(p.w-dialog-description) {
     box-sizing: border-box;
-    text-transform: none
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(div.w-dialog-overlay) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(h2.w-dialog-title) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
   }
 }
 @media all {
-  [data-ws-id="6"] {
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    background-color: transparent;
+  .w-button-1 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
@@ -301,87 +238,76 @@ html {margin: 0; display: grid; min-height: 100%}
     line-height: 1.25rem;
     font-weight: 500;
     height: 2.5rem;
-    width: 2.5rem
+    width: 2.5rem;
+    padding-top: 0px;
+    padding-right: 0.375rem;
+    padding-bottom: 0px;
+    padding-left: 0.375rem;
+    border: 0 solid rgba(226, 232, 240, 1)
   }
-  [data-ws-id="6"]:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
-  }
-  [data-ws-id="6"]:disabled {
+  .w-button-1:disabled {
     pointer-events: none;
     opacity: 0.5
   }
-  [data-ws-id="6"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-button-1:focus-visible {
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1);
+    outline: 2px solid transparent
+  }
+  .w-button-1:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="10"] {
+  .w-sheet-overlay {
     position: fixed;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 50;
     background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(0 1px 2px 0 rgb(0 0 0 / 0.05));
+    -webkit-backdrop-filter: blur(0 1px 2px 0 rgb(0 0 0/0.05));
+    backdrop-filter: blur(0 1px 2px 0 rgb(0 0 0/0.05));
     display: flex;
     flex-direction: column;
-    overflow: auto
+    overflow-x: auto;
+    overflow-y: auto
   }
-  [data-ws-id="12"] {
+  .w-sheet-content {
     width: 100%;
     z-index: 50;
     display: flex;
     flex-direction: column;
     row-gap: 1rem;
     column-gap: 1rem;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    background-color: rgba(255, 255, 255, 1);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     position: relative;
     margin-right: auto;
     max-width: 24rem;
-    flex-grow: 1
+    flex-grow: 1;
+    border: 1px solid rgba(226, 232, 240, 1);
+    padding: 1.5rem
   }
-  [data-ws-id="17"] {
+  .w-sheet-header {
     display: flex;
     flex-direction: column;
-    row-gap: 0.25rem;
-    column-gap: 0.25rem
+    row-gap: 0.5rem;
+    column-gap: 0.5rem
   }
-  [data-ws-id="19"] {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    line-height: 1.75rem;
+  .w-sheet-title {
     font-size: 1.125rem;
-    letter-spacing: -0.025em
+    line-height: 1;
+    letter-spacing: -0.025em;
+    margin: 0
   }
-  [data-ws-id="21"] {
-    margin-top: 0px;
-    margin-bottom: 0px;
+  .w-sheet-description {
     font-size: 0.875rem;
     line-height: 1.25rem;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="24"] {
+  .w-close-button-1 {
     position: absolute;
     right: 1rem;
     top: 1rem;
@@ -395,34 +321,20 @@ html {margin: 0; display: grid; min-height: 100%}
     justify-content: center;
     height: 1rem;
     width: 1rem;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
     background-color: transparent;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    border: 0 none currentcolor
   }
-  [data-ws-id="24"]:hover {
+  .w-close-button-1:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1)
+  }
+  .w-close-button-1:hover {
     opacity: 1
-  }
-  [data-ws-id="24"]:focus {
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
   }
 }
       `}
         </style>
-        <Page params={{}} resources={{}} />
+        <Component />
       </>
     );
   },

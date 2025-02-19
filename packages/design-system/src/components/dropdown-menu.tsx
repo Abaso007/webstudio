@@ -2,9 +2,10 @@ import {
   forwardRef,
   type ComponentProps,
   type ElementRef,
+  type ReactElement,
   type ReactNode,
 } from "react";
-import { ChevronFilledRightIcon } from "@webstudio-is/icons";
+import { ChevronRightIcon } from "@webstudio-is/icons";
 import { styled } from "../stitches.config";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import {
@@ -25,10 +26,20 @@ export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
 export const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
-export const DropdownMenuContent = styled(
+const DropdownMenuContentStyled = styled(
   DropdownMenuPrimitive.Content,
   menuCss
 );
+export const DropdownMenuContent = forwardRef<
+  ElementRef<typeof DropdownMenuContentStyled>,
+  ComponentProps<typeof DropdownMenuContentStyled>
+>((props, ref) => {
+  return (
+    <DropdownMenuPrimitive.Portal>
+      <DropdownMenuContentStyled {...props} ref={ref} />
+    </DropdownMenuPrimitive.Portal>
+  );
+});
 
 const SubContentStyled = styled(DropdownMenuPrimitive.SubContent, subMenuCss);
 export const DropdownMenuSubContent = forwardRef<
@@ -52,16 +63,26 @@ export const StyledMenuItem = styled(DropdownMenuPrimitive.Item, menuItemCss, {
 export const DropdownMenuItem = forwardRef<
   ElementRef<typeof StyledMenuItem>,
   ComponentProps<typeof StyledMenuItem> & { icon?: ReactNode }
->(({ icon, children, withIndicator, ...props }, forwardedRef) => (
-  <StyledMenuItem
-    withIndicator={withIndicator || Boolean(icon)}
-    {...props}
-    ref={forwardedRef}
-  >
-    {icon && <div className={menuItemIndicatorCss()}>{icon}</div>}
-    {children}
-  </StyledMenuItem>
-));
+>(({ icon, children, withIndicator, ...props }, forwardedRef) =>
+  icon ? (
+    <StyledMenuItem
+      withIndicator={withIndicator || Boolean(icon)}
+      {...props}
+      ref={forwardedRef}
+    >
+      <div className={menuItemIndicatorCss()}>{icon}</div>
+      {children}
+    </StyledMenuItem>
+  ) : (
+    <StyledMenuItem
+      withIndicator={withIndicator || Boolean(icon)}
+      {...props}
+      ref={forwardedRef}
+    >
+      {children}
+    </StyledMenuItem>
+  )
+);
 DropdownMenuItem.displayName = "DropdownMenuItem";
 
 export const DropdownMenuItemRightSlot = styled("span", {
@@ -84,7 +105,7 @@ export const DropdownMenuSubTrigger = forwardRef<
     {icon && <div className={menuItemIndicatorCss()}>{icon}</div>}
     {children}
     <DropdownMenuItemRightSlot>
-      <ChevronFilledRightIcon />
+      <ChevronRightIcon />
     </DropdownMenuItemRightSlot>
   </SubTriggerStyled>
 ));
@@ -98,10 +119,14 @@ const Indicator = styled(
 const StyledRadioItem = styled(DropdownMenuPrimitive.RadioItem, menuItemCss);
 export const DropdownMenuRadioItem = forwardRef<
   ElementRef<typeof StyledRadioItem>,
-  ComponentProps<typeof StyledRadioItem> & { icon?: ReactNode }
->(({ children, icon = <MenuCheckedIcon />, ...props }, forwardedRef) => (
-  <StyledRadioItem withIndicator {...props} ref={forwardedRef}>
-    <Indicator>{icon}</Indicator>
+  ComponentProps<typeof StyledRadioItem> & { icon?: ReactElement }
+>(({ children, icon, ...props }, forwardedRef) => (
+  <StyledRadioItem
+    withIndicator={icon !== undefined}
+    {...props}
+    ref={forwardedRef}
+  >
+    {icon !== undefined && <Indicator>{icon}</Indicator>}
     {children}
   </StyledRadioItem>
 ));
@@ -125,5 +150,3 @@ DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem";
 export const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 export const DropdownMenuGroup = DropdownMenuPrimitive.Group;
-
-export const DropdownMenuPortal = DropdownMenuPrimitive.Portal;

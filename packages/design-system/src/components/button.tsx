@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { textVariants } from "./text";
-import { styled, theme } from "../stitches.config";
+import { css, styled, theme, type CSS } from "../stitches.config";
 import { LoadingDotsIcon } from "@webstudio-is/icons";
 import { Flex } from "./flex";
 
@@ -54,10 +54,6 @@ const foregrounds: Record<ButtonColor, string> = {
   "dark-ghost": theme.colors.foregroundContrastMain,
 };
 
-// CSS supports multiple gradients as backgrounds but not multiple colors
-const backgroundColors = (base: string, overlay: string) =>
-  `linear-gradient(${overlay}, ${overlay}), linear-gradient(${base}, ${base})`;
-
 const perColorStyle = (variant: ButtonColor) => ({
   background:
     variant === "ghost" || variant === "dark-ghost"
@@ -73,15 +69,12 @@ const perColorStyle = (variant: ButtonColor) => ({
     background:
       variant === "gradient"
         ? `linear-gradient(${theme.colors.backgroundButtonHover}, ${theme.colors.backgroundButtonHover}), ${backgrounds[variant]}`
-        : backgroundColors(
-            backgrounds[variant],
-            theme.colors.backgroundButtonHover
-          ),
+        : `oklch(from ${backgrounds[variant]} l c h / 0.8)`,
   },
 
   "&[data-state=auto]:focus-visible, &[data-state=focus]": {
     color: foregrounds[variant],
-    outline: `2px solid ${theme.colors.borderFocus}`,
+    outline: `1px solid ${theme.colors.borderFocus}`,
     outlineOffset: "1px",
   },
 
@@ -90,23 +83,21 @@ const perColorStyle = (variant: ButtonColor) => ({
     background:
       variant === "gradient"
         ? `linear-gradient(${theme.colors.backgroundButtonPressed}, ${theme.colors.backgroundButtonPressed}), ${backgrounds[variant]}`
-        : backgroundColors(
-            backgrounds[variant],
-            theme.colors.backgroundButtonPressed
-          ),
+        : `oklch(from ${backgrounds[variant]} l c h / 0.8)`,
   },
 
-  "&[data-state=disabled]": {
-    background: theme.colors.backgroundButtonDisabled,
-    color: theme.colors.foregroundDisabled,
-  },
+  "&:disabled:not([data-state=pending]), &[data-state=disabled], &[aria-disabled=true], &[aria-disabled=true]:hover, &[aria-disabled=true]:visited":
+    {
+      background: theme.colors.backgroundButtonDisabled,
+      color: theme.colors.foregroundDisabled,
+    },
 
   "&[data-state=pending]": {
     cursor: "wait",
   },
 });
 
-const StyledButton = styled("button", {
+export const buttonStyle = css({
   all: "unset",
   boxSizing: "border-box",
   minWidth: 0,
@@ -115,8 +106,8 @@ const StyledButton = styled("button", {
   alignItems: "center",
   justifyContent: "center",
   gap: theme.spacing[2],
-  padding: `0 ${theme.spacing[4]}`,
-  height: theme.spacing[12],
+  padding: `0 ${theme.spacing[3]}`,
+  height: theme.sizes.controlHeight,
   borderRadius: theme.borderRadius[4],
   whiteSpace: "nowrap",
 
@@ -160,7 +151,7 @@ type ButtonProps = {
 
   // We don't want all the noise from StyledButton,
   // so we're cherry-picking just the props we need
-  css?: ComponentProps<typeof StyledButton>["css"];
+  css?: CSS;
 
   // prefix/suffix are primarily for Icons
   // this is a replacement for icon/icon-left/icon-right in Figma
@@ -180,6 +171,9 @@ export const Button = forwardRef(
       suffix,
       children,
       "data-state": dataState,
+      className,
+      css,
+      color,
       ...restProps
     }: ButtonProps,
     ref: Ref<HTMLButtonElement>
@@ -199,11 +193,12 @@ export const Button = forwardRef(
     }
 
     return (
-      <StyledButton
+      <button
         {...restProps}
         disabled={disabled || state === "pending"}
         data-state={finalState ?? "auto"}
         ref={ref}
+        className={buttonStyle({ color, className, css })}
       >
         {prefix}
         {children && (
@@ -220,14 +215,14 @@ export const Button = forwardRef(
                 justify={"center"}
                 align={"center"}
               >
-                <LoadingDotsIcon size={28} />
+                <LoadingDotsIcon size={28} fill="currentColor" />
               </Flex>
             )}
           </TextContainer>
         )}
 
         {suffix}
-      </StyledButton>
+      </button>
     );
   }
 );

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box as Box,
   Button as Button,
@@ -17,111 +16,67 @@ import {
   NavigationMenuViewport as NavigationMenuViewport,
 } from "../components";
 
-type Params = Record<string, string | undefined>;
-type Resources = Record<string, unknown>;
-const Page = (_props: { params: Params; resources: Resources }) => {
-  let [menuValue, set$menuValue] = useState<any>("");
-  let onValueChange = (value: any) => {
-    menuValue = value;
-    set$menuValue(menuValue);
-  };
+const Component = () => {
   return (
-    <Box data-ws-id="root" data-ws-component="Box">
-      <NavigationMenu
-        data-ws-id="1"
-        data-ws-component="NavigationMenu"
-        value={menuValue}
-        onValueChange={onValueChange}
-      >
-        <NavigationMenuList
-          data-ws-id="6"
-          data-ws-component="NavigationMenuList"
-        >
-          <NavigationMenuItem
-            data-ws-id="8"
-            data-ws-component="NavigationMenuItem"
-            data-ws-index="0"
-          >
-            <NavigationMenuTrigger
-              data-ws-id="9"
-              data-ws-component="NavigationMenuTrigger"
-            >
-              <Button data-ws-id="10" data-ws-component="Button">
-                <Text data-ws-id="12" data-ws-component="Text">
-                  {"About"}
-                </Text>
-                <Box data-ws-id="13" data-ws-component="Box">
+    <Box className={"w-box"}>
+      <NavigationMenu className={"w-navigation-menu w-navigation-menu-1"}>
+        <NavigationMenuList className={"w-menu-list w-menu-list-1"}>
+          <NavigationMenuItem data-ws-index="0" className={"w-menu-item"}>
+            <NavigationMenuTrigger className={"w-menu-trigger"}>
+              <Button className={"w-button w-button-1"}>
+                <Text className={"w-text"}>{"About"}</Text>
+                <Box className={"w-box w-icon-container"}>
                   <HtmlEmbed
-                    data-ws-id="15"
-                    data-ws-component="HtmlEmbed"
                     code={
-                      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="100%" height="100%" style="display: block;"><path d="M4.04 6.284a.65.65 0 0 1 .92.001L8 9.335l3.04-3.05a.65.65 0 1 1 .921.918l-3.5 3.512a.65.65 0 0 1-.921 0L4.039 7.203a.65.65 0 0 1 .001-.92Z"/></svg>'
+                      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="100%" height="100%" style="display: block;"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m4 6 4 4 4-4"/></svg>'
                     }
+                    className={"w-html-embed"}
                   />
                 </Box>
               </Button>
             </NavigationMenuTrigger>
             <NavigationMenuContent
-              data-ws-id="17"
-              data-ws-component="NavigationMenuContent"
               data-ws-index="0"
+              className={"w-menu-content w-menu-content-1"}
             >
-              <Box data-ws-id="19" data-ws-component="Box">
-                <Box data-ws-id="21" data-ws-component="Box">
-                  {""}
-                </Box>
-                <Box data-ws-id="23" data-ws-component="Box">
-                  <NavigationMenuLink
-                    data-ws-id="25"
-                    data-ws-component="NavigationMenuLink"
-                  >
+              <Box className={"w-box w-content"}>
+                <Box className={"w-box w-box-1"}>{""}</Box>
+                <Box className={"w-box w-flex-column"}>
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="26"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/sheet"}
+                      className={"w-link w-link-1"}
                     >
-                      <Text data-ws-id="29" data-ws-component="Text">
-                        {"Sheet"}
-                      </Text>
-                      <Paragraph data-ws-id="31" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-1"}>{"Sheet"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-1"}>
                         {
                           "Extends the Dialog component to display content that complements the main content of the screen."
                         }
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="33"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="34"
-                      data-ws-component="Link"
                       href={
                         "https://ui.shadcn.com/docs/components/navigation-menu"
                       }
+                      className={"w-link w-link-2"}
                     >
-                      <Text data-ws-id="37" data-ws-component="Text">
+                      <Text className={"w-text w-text-2"}>
                         {"Navigation Menu"}
                       </Text>
-                      <Paragraph data-ws-id="39" data-ws-component="Paragraph">
+                      <Paragraph className={"w-paragraph w-paragraph-2"}>
                         {"A collection of links for navigating websites."}
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="41"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="42"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/tabs"}
+                      className={"w-link w-link-3"}
                     >
-                      <Text data-ws-id="45" data-ws-component="Text">
-                        {"Tabs"}
-                      </Text>
-                      <Paragraph data-ws-id="47" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-3"}>{"Tabs"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-3"}>
                         {
                           "A set of layered sections of content—known as tab panels—that are displayed one at a time."
                         }
@@ -132,88 +87,59 @@ const Page = (_props: { params: Params; resources: Resources }) => {
               </Box>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem
-            data-ws-id="49"
-            data-ws-component="NavigationMenuItem"
-            data-ws-index="1"
-          >
-            <NavigationMenuTrigger
-              data-ws-id="50"
-              data-ws-component="NavigationMenuTrigger"
-            >
-              <Button data-ws-id="51" data-ws-component="Button">
-                <Text data-ws-id="53" data-ws-component="Text">
-                  {"Components"}
-                </Text>
-                <Box data-ws-id="54" data-ws-component="Box">
+          <NavigationMenuItem data-ws-index="1" className={"w-menu-item"}>
+            <NavigationMenuTrigger className={"w-menu-trigger"}>
+              <Button className={"w-button w-button-2"}>
+                <Text className={"w-text"}>{"Components"}</Text>
+                <Box className={"w-box w-icon-container-1"}>
                   <HtmlEmbed
-                    data-ws-id="56"
-                    data-ws-component="HtmlEmbed"
                     code={
-                      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="100%" height="100%" style="display: block;"><path d="M4.04 6.284a.65.65 0 0 1 .92.001L8 9.335l3.04-3.05a.65.65 0 1 1 .921.918l-3.5 3.512a.65.65 0 0 1-.921 0L4.039 7.203a.65.65 0 0 1 .001-.92Z"/></svg>'
+                      '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="100%" height="100%" style="display: block;"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m4 6 4 4 4-4"/></svg>'
                     }
+                    className={"w-html-embed"}
                   />
                 </Box>
               </Button>
             </NavigationMenuTrigger>
             <NavigationMenuContent
-              data-ws-id="58"
-              data-ws-component="NavigationMenuContent"
               data-ws-index="1"
+              className={"w-menu-content w-menu-content-2"}
             >
-              <Box data-ws-id="60" data-ws-component="Box">
-                <Box data-ws-id="62" data-ws-component="Box">
-                  <NavigationMenuLink
-                    data-ws-id="64"
-                    data-ws-component="NavigationMenuLink"
-                  >
+              <Box className={"w-box w-content-1"}>
+                <Box className={"w-box w-flex-column-1"}>
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="65"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/accordion"}
+                      className={"w-link w-link-4"}
                     >
-                      <Text data-ws-id="68" data-ws-component="Text">
-                        {"Accordion"}
-                      </Text>
-                      <Paragraph data-ws-id="70" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-4"}>{"Accordion"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-4"}>
                         {
                           "A vertically stacked set of interactive headings that each reveal a section of content."
                         }
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="72"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="73"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/dialog"}
+                      className={"w-link w-link-5"}
                     >
-                      <Text data-ws-id="76" data-ws-component="Text">
-                        {"Dialog"}
-                      </Text>
-                      <Paragraph data-ws-id="78" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-5"}>{"Dialog"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-5"}>
                         {
                           "A window overlaid on either the primary window or another dialog window, rendering the content underneath inert."
                         }
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="80"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="81"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/collapsible"}
+                      className={"w-link w-link-6"}
                     >
-                      <Text data-ws-id="84" data-ws-component="Text">
-                        {"Collapsible"}
-                      </Text>
-                      <Paragraph data-ws-id="86" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-6"}>{"Collapsible"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-6"}>
                         {
                           "An interactive component which expands/collapses a panel."
                         }
@@ -221,58 +147,40 @@ const Page = (_props: { params: Params; resources: Resources }) => {
                     </Link>
                   </NavigationMenuLink>
                 </Box>
-                <Box data-ws-id="88" data-ws-component="Box">
-                  <NavigationMenuLink
-                    data-ws-id="90"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                <Box className={"w-box w-flex-column-2"}>
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="91"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/popover"}
+                      className={"w-link w-link-7"}
                     >
-                      <Text data-ws-id="94" data-ws-component="Text">
-                        {"Popover"}
-                      </Text>
-                      <Paragraph data-ws-id="96" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-7"}>{"Popover"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-7"}>
                         {
                           "Displays rich content in a portal, triggered by a button."
                         }
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="98"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="99"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/tooltip"}
+                      className={"w-link w-link-8"}
                     >
-                      <Text data-ws-id="102" data-ws-component="Text">
-                        {"Tooltip"}
-                      </Text>
-                      <Paragraph data-ws-id="104" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-8"}>{"Tooltip"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-8"}>
                         {
                           "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it."
                         }
                       </Paragraph>
                     </Link>
                   </NavigationMenuLink>
-                  <NavigationMenuLink
-                    data-ws-id="106"
-                    data-ws-component="NavigationMenuLink"
-                  >
+                  <NavigationMenuLink className={"w-accessible-link-wrapper"}>
                     <Link
-                      data-ws-id="107"
-                      data-ws-component="Link"
                       href={"https://ui.shadcn.com/docs/components/button"}
+                      className={"w-link w-link-9"}
                     >
-                      <Text data-ws-id="110" data-ws-component="Text">
-                        {"Button"}
-                      </Text>
-                      <Paragraph data-ws-id="112" data-ws-component="Paragraph">
+                      <Text className={"w-text w-text-9"}>{"Button"}</Text>
+                      <Paragraph className={"w-paragraph w-paragraph-9"}>
                         {
                           "Displays a button or a component that looks like a button."
                         }
@@ -283,25 +191,15 @@ const Page = (_props: { params: Params; resources: Resources }) => {
               </Box>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem
-            data-ws-id="114"
-            data-ws-component="NavigationMenuItem"
-            data-ws-index="2"
-          >
-            <NavigationMenuLink
-              data-ws-id="115"
-              data-ws-component="NavigationMenuLink"
-            >
-              <Link data-ws-id="116" data-ws-component="Link">
-                {"Standalone"}
-              </Link>
+          <NavigationMenuItem data-ws-index="2" className={"w-menu-item"}>
+            <NavigationMenuLink className={"w-accessible-link-wrapper"}>
+              <Link className={"w-link w-link-10"}>{"Standalone"}</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
-        <Box data-ws-id="118" data-ws-component="Box">
+        <Box className={"w-box w-viewport-container"}>
           <NavigationMenuViewport
-            data-ws-id="120"
-            data-ws-component="NavigationMenuViewport"
+            className={"w-menu-viewport w-menu-viewport-1"}
           />
         </Box>
       </NavigationMenu>
@@ -319,25 +217,8 @@ const Story = {
       <>
         <style>
           {`
-html {margin: 0; display: grid; min-height: 100%}
 @media all {
-  body:where([data-ws-component="Body"]) {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    font-family: Arial, Roboto, sans-serif;
-    font-size: 16px;
-    line-height: 1.2;
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale
-  }
-  div:where([data-ws-component="Box"]) {
+  :where(div.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -345,7 +226,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  address:where([data-ws-component="Box"]) {
+  :where(address.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -353,7 +234,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  article:where([data-ws-component="Box"]) {
+  :where(article.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -361,7 +242,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  aside:where([data-ws-component="Box"]) {
+  :where(aside.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -369,7 +250,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  figure:where([data-ws-component="Box"]) {
+  :where(figure.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -377,7 +258,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  footer:where([data-ws-component="Box"]) {
+  :where(footer.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -385,7 +266,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  header:where([data-ws-component="Box"]) {
+  :where(header.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -393,7 +274,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  main:where([data-ws-component="Box"]) {
+  :where(main.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -401,7 +282,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  nav:where([data-ws-component="Box"]) {
+  :where(nav.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -409,7 +290,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  section:where([data-ws-component="Box"]) {
+  :where(section.w-box) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -417,54 +298,45 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  div:where([data-ws-component="NavigationMenu"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  div:where([data-ws-component="NavigationMenuList"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  div:where([data-ws-component="NavigationMenuItem"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  div:where([data-ws-component="NavigationMenuTrigger"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px
-  }
-  button:where([data-ws-component="Button"]) {
+  :where(button.w-button) {
     font-family: inherit;
     font-size: 100%;
     line-height: 1.15;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-    text-transform: none
+    border-top-style: solid;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    text-transform: none;
+    margin: 0
   }
-  div:where([data-ws-component="Text"]) {
+  :where(div.w-html-embed) {
+    display: contents;
+    white-space: normal;
+    white-space-collapse: collapse
+  }
+  :where(a.w-link) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px;
+    display: inline-block
+  }
+  :where(p.w-paragraph) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(div.w-text) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -473,7 +345,7 @@ html {margin: 0; display: grid; min-height: 100%}
     outline-width: 1px;
     min-height: 1em
   }
-  div:where([data-ws-component="NavigationMenuContent"]) {
+  :where(div.w-navigation-menu) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -481,7 +353,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  div:where([data-ws-component="NavigationMenuLink"]) {
+  :where(div.w-menu-content) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -489,17 +361,7 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  a:where([data-ws-component="Link"]) {
-    box-sizing: border-box;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    outline-width: 1px;
-    min-height: 1em;
-    display: inline-block
-  }
-  p:where([data-ws-component="Paragraph"]) {
+  :where(div.w-menu-item) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -507,7 +369,31 @@ html {margin: 0; display: grid; min-height: 100%}
     border-left-width: 1px;
     outline-width: 1px
   }
-  div:where([data-ws-component="NavigationMenuViewport"]) {
+  :where(div.w-accessible-link-wrapper) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(div.w-menu-list) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(div.w-menu-trigger) {
+    box-sizing: border-box;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    outline-width: 1px
+  }
+  :where(div.w-menu-viewport) {
     box-sizing: border-box;
     border-top-width: 1px;
     border-right-width: 1px;
@@ -517,46 +403,28 @@ html {margin: 0; display: grid; min-height: 100%}
   }
 }
 @media all {
-  [data-ws-id="1"] {
+  .w-navigation-menu-1 {
     position: relative;
     max-width: max-content
   }
-  [data-ws-id="6"] {
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
+  .w-menu-list-1 {
     display: flex;
     flex-grow: 1;
     flex-shrink: 1;
-    flex-basis: 0%;
+    flex-basis: 0;
     list-style-type: none;
     align-items: center;
     justify-content: center;
     row-gap: 0.25rem;
-    column-gap: 0.25rem
+    column-gap: 0.25rem;
+    margin: 0;
+    padding: 0
   }
-  [data-ws-id="10"] {
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    background-color: transparent;
+  .w-button-1 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
@@ -564,81 +432,76 @@ html {margin: 0; display: grid; min-height: 100%}
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
-    height: 2.5rem;
-    padding-left: 0.75rem;
+    height: 2.25rem;
+    padding-top: 0;
     padding-right: 0.75rem;
-    --navigation-menu-trigger-icon-transform: 0deg
+    padding-bottom: 0;
+    padding-left: 0.75rem;
+    --navigation-menu-trigger-icon-transform: 0deg;
+    border: 0 solid rgba(226, 232, 240, 1)
   }
-  [data-ws-id="10"]:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
-  }
-  [data-ws-id="10"]:disabled {
+  .w-button-1:disabled {
     pointer-events: none;
     opacity: 0.5
   }
-  [data-ws-id="10"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-button-1:focus-visible {
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1);
+    outline: 2px solid transparent
+  }
+  .w-button-1:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="10"][data-state=open] {
+  .w-button-1[data-state="open"] {
     --navigation-menu-trigger-icon-transform: 180deg
   }
-  [data-ws-id="13"] {
+  .w-icon-container {
     margin-left: 0.25rem;
     rotate: var(--navigation-menu-trigger-icon-transform);
     height: 1rem;
     width: 1rem;
-    flex-grow: 0;
+    flex-shrink: 0;
     transition-property: all;
+    transition-duration: 200ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms
+    transition-delay: 0s;
+    transition-behavior: normal
   }
-  [data-ws-id="17"] {
-    left: 0px;
-    top: 0px;
-    position: absolute;
+  .w-menu-content-1 {
+    left: 0;
+    top: 0;
+    positon: absolute;
     width: max-content;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem
+    padding: 1rem
   }
-  [data-ws-id="19"] {
+  .w-content {
     display: flex;
     row-gap: 1rem;
     column-gap: 1rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem
+    padding: 0.5rem
   }
-  [data-ws-id="21"] {
+  .w-box-1 {
     background-color: rgba(226, 232, 240, 1);
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
     width: 12rem;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
-    border-bottom-left-radius: 0.375rem
+    border-bottom-left-radius: 0.375rem;
+    padding: 1rem
   }
-  [data-ws-id="23"] {
+  .w-flex-column {
     width: 16rem;
     display: flex;
     row-gap: 1rem;
     column-gap: 1rem;
     flex-direction: column
   }
-  [data-ws-id="26"] {
+  .w-link-1 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -646,47 +509,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="26"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-1:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="26"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-1:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="29"] {
+  .w-text-1 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="31"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-1 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="34"] {
+  .w-link-2 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -694,47 +550,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="34"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-2:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="34"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-2:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="37"] {
+  .w-text-2 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="39"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-2 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="42"] {
+  .w-link-3 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -742,60 +591,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="42"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-3:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="42"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-3:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="45"] {
+  .w-text-3 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="47"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-3 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="51"] {
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    background-color: transparent;
+  .w-button-2 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
@@ -803,69 +632,66 @@ html {margin: 0; display: grid; min-height: 100%}
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
-    height: 2.5rem;
-    padding-left: 0.75rem;
+    height: 2.25rem;
+    padding-top: 0;
     padding-right: 0.75rem;
-    --navigation-menu-trigger-icon-transform: 0deg
+    padding-bottom: 0;
+    padding-left: 0.75rem;
+    --navigation-menu-trigger-icon-transform: 0deg;
+    border: 0 solid rgba(226, 232, 240, 1)
   }
-  [data-ws-id="51"]:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
-  }
-  [data-ws-id="51"]:disabled {
+  .w-button-2:disabled {
     pointer-events: none;
     opacity: 0.5
   }
-  [data-ws-id="51"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-button-2:focus-visible {
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1);
+    outline: 2px solid transparent
+  }
+  .w-button-2:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="51"][data-state=open] {
+  .w-button-2[data-state="open"] {
     --navigation-menu-trigger-icon-transform: 180deg
   }
-  [data-ws-id="54"] {
+  .w-icon-container-1 {
     margin-left: 0.25rem;
     rotate: var(--navigation-menu-trigger-icon-transform);
     height: 1rem;
     width: 1rem;
-    flex-grow: 0;
+    flex-shrink: 0;
     transition-property: all;
+    transition-duration: 200ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms
+    transition-delay: 0s;
+    transition-behavior: normal
   }
-  [data-ws-id="58"] {
-    left: 0px;
-    top: 0px;
-    position: absolute;
+  .w-menu-content-2 {
+    left: 0;
+    top: 0;
+    positon: absolute;
     width: max-content;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem
+    padding: 1rem
   }
-  [data-ws-id="60"] {
+  .w-content-1 {
     display: flex;
     row-gap: 1rem;
-    column-gap: 1rem;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px
+    column-gap: 1rem
   }
-  [data-ws-id="62"] {
+  .w-flex-column-1 {
     width: 16rem;
     display: flex;
     row-gap: 1rem;
     column-gap: 1rem;
     flex-direction: column
   }
-  [data-ws-id="65"] {
+  .w-link-4 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -873,47 +699,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="65"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-4:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="65"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-4:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="68"] {
+  .w-text-4 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="70"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-4 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="73"] {
+  .w-link-5 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -921,47 +740,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="73"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-5:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="73"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-5:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="76"] {
+  .w-text-5 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="78"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-5 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="81"] {
+  .w-link-6 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -969,54 +781,47 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="81"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-6:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="81"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-6:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="84"] {
+  .w-text-6 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="86"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-6 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="88"] {
+  .w-flex-column-2 {
     width: 16rem;
     display: flex;
     row-gap: 1rem;
     column-gap: 1rem;
     flex-direction: column
   }
-  [data-ws-id="91"] {
+  .w-link-7 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -1024,47 +829,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="91"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-7:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="91"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-7:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="94"] {
+  .w-text-7 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="96"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-7 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="99"] {
+  .w-link-8 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -1072,47 +870,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="99"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-8:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="99"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-8:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="102"] {
+  .w-text-8 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="104"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-8 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="107"] {
+  .w-link-9 {
     color: inherit;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
     user-select: none;
     row-gap: 0.25rem;
     column-gap: 0.25rem;
@@ -1120,60 +911,40 @@ html {margin: 0; display: grid; min-height: 100%}
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
     line-height: 1;
     text-decoration-line: none;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px
+    outline: medium none currentcolor;
+    padding: 0.75rem
   }
-  [data-ws-id="107"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-9:focus {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="107"]:focus {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-9:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="110"] {
+  .w-text-9 {
     font-size: 0.875rem;
-    line-height: 1;
-    font-weight: 500
+    font-weight: 500;
+    line-height: 1
   }
-  [data-ws-id="112"] {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    overflow: hidden;
+  .w-paragraph-9 {
+    overflow-x: hidden;
+    overflow-y: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 0.875rem;
     line-height: 1.375;
-    color: rgba(100, 116, 139, 1)
+    color: rgba(100, 116, 139, 1);
+    margin: 0
   }
-  [data-ws-id="116"] {
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    background-color: transparent;
+  .w-link-10 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
@@ -1181,64 +952,55 @@ html {margin: 0; display: grid; min-height: 100%}
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
-    height: 2.5rem;
-    padding-left: 0.75rem;
+    height: 2.25rem;
+    padding-top: 0;
     padding-right: 0.75rem;
+    padding-bottom: 0;
+    padding-left: 0.75rem;
     text-decoration-line: none;
-    color: currentColor
+    color: currentcolor;
+    border: 0 solid rgba(226, 232, 240, 1)
   }
-  [data-ws-id="116"]:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: transparent;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(148, 163, 184, 1)
-  }
-  [data-ws-id="116"]:disabled {
+  .w-link-10:disabled {
     pointer-events: none;
     opacity: 0.5
   }
-  [data-ws-id="116"]:hover {
-    background-color: rgba(241, 245, 249, 0.9);
+  .w-link-10:focus-visible {
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 calc(2px + 2px) rgba(148, 163, 184, 1);
+    outline: 2px solid transparent
+  }
+  .w-link-10:hover {
+    background-color: rgba(241, 245, 249, 1);
     color: rgba(15, 23, 42, 1)
   }
-  [data-ws-id="118"] {
+  .w-viewport-container {
     position: absolute;
-    left: 0px;
+    left: 0;
     top: 100%;
     display: flex;
     justify-content: center
   }
-  [data-ws-id="120"] {
+  .w-menu-viewport-1 {
     position: relative;
     margin-top: 0.375rem;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     border-top-left-radius: 0.375rem;
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom-left-radius: 0.375rem;
-    border-top-style: solid;
-    border-right-style: solid;
-    border-bottom-style: solid;
-    border-left-style: solid;
-    border-top-color: rgba(226, 232, 240, 1);
-    border-right-color: rgba(226, 232, 240, 1);
-    border-bottom-color: rgba(226, 232, 240, 1);
-    border-left-color: rgba(226, 232, 240, 1);
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
     background-color: rgba(255, 255, 255, 1);
     color: rgba(2, 8, 23, 1);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     height: var(--radix-navigation-menu-viewport-height);
-    width: var(--radix-navigation-menu-viewport-width)
+    width: var(--radix-navigation-menu-viewport-width);
+    border: 1px solid rgba(226, 232, 240, 1)
   }
 }
       `}
         </style>
-        <Page params={{}} resources={{}} />
+        <Component />
       </>
     );
   },

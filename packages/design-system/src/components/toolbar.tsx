@@ -3,9 +3,12 @@
  * https://www.figma.com/file/sfCE7iLS0k25qCxiifQNLE/%F0%9F%93%9A-Webstudio-Library?node-id=1512%3A7422&t=BOWCrlme5NepfLUm-4
  */
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
+import { Slot, type SlotProps } from "@radix-ui/react-slot";
 import { css, styled, theme } from "../stitches.config";
 import { separatorStyle } from "./separator";
 import { textVariants } from "./text";
+import { forwardRef, type Ref } from "react";
+import { focusRingStyle } from "./focus-ring";
 
 export const Toolbar = styled(ToolbarPrimitive.Root, {
   display: "flex",
@@ -21,20 +24,9 @@ export const ToolbarToggleGroup = styled(ToolbarPrimitive.ToggleGroup, {
   alignItems: "center",
 });
 
-// It is inside the button, so we need it as a separate element.
-const toolbarItemFocusRing = {
-  "&::after": {
-    content: '""',
-    position: "absolute",
-    inset: 4,
-    outlineWidth: 2,
-    outlineStyle: "solid",
-    outlineColor: theme.colors.borderFocus,
-    borderRadius: theme.borderRadius[3],
-  },
-};
+const focusRing = focusRingStyle();
 
-export const toggleItemStyle = css(textVariants.labelsTitleCase, {
+const toggleItemStyle = css(textVariants.labelsTitleCase, {
   // reset styles
   boxSizing: "border-box",
   position: "relative",
@@ -57,18 +49,18 @@ export const toggleItemStyle = css(textVariants.labelsTitleCase, {
   background: "transparent",
   transition: "200ms background",
 
-  "&:focus-visible": toolbarItemFocusRing,
+  "&:focus-visible": focusRing,
   "&:hover, &[data-state=on], &[data-state=open], &[aria-checked=true]": {
     background: theme.colors.backgroundTopbarHover,
   },
   variants: {
     // Just for story
     focused: {
-      true: toolbarItemFocusRing,
+      true: focusRing,
     },
     variant: {
       subtle: {
-        color: theme.colors.foregroundSubtle,
+        color: theme.colors.foregroundTextMoreSubtle,
         "&:hover, &[data-state=on], &[aria-checked=true]": {
           color: "inherit",
         },
@@ -78,6 +70,15 @@ export const toggleItemStyle = css(textVariants.labelsTitleCase, {
           color: theme.colors.foregroundSuccess,
         },
       },
+      chevron: {
+        minWidth: "auto",
+        paddingInline: 0,
+        color: theme.colors.foregroundContrastSubtle,
+        "&:hover, &:focus-visible, &[aria-expanded=true]": {
+          color: theme.colors.foregroundContrastMain,
+        },
+        "&:focus-visible": focusRingStyle({ left: 0, right: 0 }),
+      },
     },
   },
 });
@@ -86,6 +87,20 @@ export const ToolbarToggleItem = styled(
   ToolbarPrimitive.ToggleItem,
   toggleItemStyle
 );
+
+type ToolbarButtonProps = SlotProps & {
+  asChild?: boolean;
+};
+
+const ToolbarButtonBase = forwardRef(
+  ({ asChild, ...props }: ToolbarButtonProps, ref: Ref<HTMLButtonElement>) => {
+    const Component = asChild ? Slot : "button";
+    return <Component {...props} ref={ref} />;
+  }
+);
+ToolbarButtonBase.displayName = "ToolbarButton";
+
+export const ToolbarButton = styled(ToolbarButtonBase, toggleItemStyle);
 
 export const ToolbarSeparator = styled(
   ToolbarPrimitive.Separator,

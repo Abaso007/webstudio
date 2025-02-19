@@ -7,32 +7,110 @@ import {
   SectionTitleLabel,
   SectionTitleButton,
   Separator,
+  theme,
 } from "@webstudio-is/design-system";
-import { theme } from "@webstudio-is/design-system";
-import type { ComponentProps, ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import { PlusIcon } from "@webstudio-is/icons";
 import type { Simplify } from "type-fest";
 
-type UseOpenStateProps = {
-  label: string;
-  isOpenDefault?: boolean;
-  isOpen?: boolean;
+type Label = string;
+
+type State = {
+  [label: string]: boolean;
 };
 
-const stateContainer = atom<{ [label: string]: boolean }>({});
-
 // Preserves the open/close state even when component gets unmounted
-export const useOpenState = ({
-  label,
-  isOpenDefault = true,
-  isOpen: isOpenForced,
-}: UseOpenStateProps): [boolean, (value: boolean) => void] => {
-  const state = useStore(stateContainer);
-  const isOpen = label in state ? state[label] : isOpenDefault;
-  const setIsOpen = (isOpen: boolean) => {
-    stateContainer.set({ ...state, [label]: isOpen });
-  };
-  return [isOpenForced === undefined ? isOpen : isOpenForced, setIsOpen];
+const $state = atom<State>({});
+
+type HandleOpenState = (
+  label: Label,
+  isOpenForced?: boolean
+) => [boolean, (value: boolean) => void];
+
+const CollapsibleSectionContext = createContext<
+  | undefined
+  | {
+      handleOpenState: HandleOpenState;
+    }
+>(undefined);
+
+export const CollapsibleProvider = ({
+  children,
+  accordion,
+  initialOpen,
+}: {
+  children: ReactNode;
+  accordion?: boolean;
+  initialOpen?: Label;
+}) => {
+  const state = useStore($state);
+  useEffect(() => {
+    const nextState = { ...$state.get() };
+
+    if (initialOpen === "*") {
+      for (const key in nextState) {
+        nextState[key] = true;
+      }
+      $state.set(nextState);
+      return;
+    }
+
+    if (accordion) {
+      for (const key in nextState) {
+        nextState[key] = false;
+      }
+    }
+
+    if (initialOpen) {
+      nextState[initialOpen] = true;
+    }
+    $state.set(nextState);
+  }, [accordion, initialOpen]);
+
+  const handleOpenState: HandleOpenState = useCallback(
+    (label, isOpenForced) => {
+      const nextState = { ...state };
+      if (nextState[label] === undefined) {
+        nextState[label] = accordion ? false : true;
+      }
+
+      const setIsOpen = (isOpen: boolean) => {
+        if (accordion) {
+          for (const key in nextState) {
+            nextState[key] = false;
+          }
+        }
+        nextState[label] = isOpen;
+        $state.set(nextState);
+      };
+
+      return [isOpenForced ?? nextState[label], setIsOpen];
+    },
+    [state, accordion]
+  );
+
+  return (
+    <CollapsibleSectionContext.Provider value={{ handleOpenState }}>
+      {children}
+    </CollapsibleSectionContext.Provider>
+  );
+};
+
+export const useOpenState: HandleOpenState = (label, isOpen) => {
+  const context = useContext(CollapsibleSectionContext);
+  const localState = useState(isOpen ?? true);
+  if (context === undefined) {
+    return localState;
+  }
+  return context.handleOpenState(label, isOpen);
 };
 
 type CollapsibleSectionBaseProps = {
@@ -40,57 +118,60 @@ type CollapsibleSectionBaseProps = {
   children: ReactNode;
   fullWidth?: boolean;
   label: string;
-  isOpen: boolean;
-  onOpenChange: (value: boolean) => void;
+  isOpen?: boolean;
+  onOpenChange?: (value: boolean) => void;
 };
 
-export const CollapsibleSectionBase = ({
+export const CollapsibleSectionRoot = ({
   label,
   trigger,
   children,
   fullWidth = false,
   isOpen,
   onOpenChange,
-}: CollapsibleSectionBaseProps) => (
-  <Collapsible.Root open={isOpen} onOpenChange={onOpenChange}>
-    <>
-      <Collapsible.Trigger asChild>
-        {trigger ?? (
-          <SectionTitle>
-            <SectionTitleLabel>{label}</SectionTitleLabel>
-          </SectionTitle>
-        )}
-      </Collapsible.Trigger>
+}: CollapsibleSectionBaseProps) => {
+  return (
+    <Collapsible.Root open={isOpen} onOpenChange={onOpenChange}>
+      <>
+        <Collapsible.Trigger asChild>
+          {trigger ?? (
+            <SectionTitle>
+              <SectionTitleLabel>{label}</SectionTitleLabel>
+            </SectionTitle>
+          )}
+        </Collapsible.Trigger>
 
-      <Collapsible.Content asChild>
-        <Flex
-          gap="2"
-          direction="column"
-          css={{
-            pb: theme.spacing[9],
-            px: fullWidth ? 0 : theme.spacing[9],
-            paddingTop: 0,
-            "&:empty": { display: "none" },
-          }}
-        >
-          {children}
-        </Flex>
-      </Collapsible.Content>
-      <Separator />
-    </>
-  </Collapsible.Root>
-);
+        <Collapsible.Content asChild>
+          <Flex
+            gap="2"
+            direction="column"
+            css={{
+              pb: theme.panel.paddingBlock,
+              px: fullWidth ? 0 : theme.panel.paddingInline,
+              paddingTop: 0,
+              "&:empty": { display: "none" },
+            }}
+          >
+            {children}
+          </Flex>
+        </Collapsible.Content>
+        <Separator />
+      </>
+    </Collapsible.Root>
+  );
+};
 
 type CollapsibleSectionProps = Simplify<
-  Omit<CollapsibleSectionBaseProps, "isOpen" | "onOpenChange"> &
-    UseOpenStateProps
+  Omit<CollapsibleSectionBaseProps, "onOpenChange"> & {
+    label: Label;
+  }
 >;
 
 export const CollapsibleSection = (props: CollapsibleSectionProps) => {
   const { label, trigger, children, fullWidth } = props;
-  const [isOpen, setIsOpen] = useOpenState(props);
+  const [isOpen, setIsOpen] = useOpenState(label, props.isOpen);
   return (
-    <CollapsibleSectionBase
+    <CollapsibleSectionRoot
       label={label}
       trigger={trigger}
       fullWidth={fullWidth}
@@ -98,7 +179,7 @@ export const CollapsibleSection = (props: CollapsibleSectionProps) => {
       onOpenChange={setIsOpen}
     >
       {children}
-    </CollapsibleSectionBase>
+    </CollapsibleSectionRoot>
   );
 };
 
@@ -107,7 +188,7 @@ export const CollapsibleSectionWithAddButton = ({
   hasItems = true,
   ...props
 }: Omit<CollapsibleSectionProps, "trigger" | "categoryProps"> & {
-  onAdd: () => void;
+  onAdd?: () => void;
 
   /**
    * If set to `true`, dots aren't shown,
@@ -116,7 +197,7 @@ export const CollapsibleSectionWithAddButton = ({
   hasItems?: boolean | ComponentProps<typeof SectionTitle>["dots"];
 }) => {
   const { label, children } = props;
-  const [isOpen, setIsOpen] = useOpenState(props);
+  const [isOpen, setIsOpen] = useOpenState(label, props.isOpen);
 
   const isEmpty =
     hasItems === false || (Array.isArray(hasItems) && hasItems.length === 0);
@@ -125,7 +206,7 @@ export const CollapsibleSectionWithAddButton = ({
   const isOpenFinal = isOpen && isEmpty === false;
 
   return (
-    <CollapsibleSectionBase
+    <CollapsibleSectionRoot
       label={label}
       fullWidth={false}
       isOpen={isOpenFinal}
@@ -139,15 +220,17 @@ export const CollapsibleSectionWithAddButton = ({
         <SectionTitle
           dots={Array.isArray(hasItems) ? hasItems : []}
           suffix={
-            <SectionTitleButton
-              prefix={<PlusIcon />}
-              onClick={() => {
-                if (isOpenFinal === false) {
-                  setIsOpen(true);
-                }
-                onAdd();
-              }}
-            />
+            onAdd ? (
+              <SectionTitleButton
+                prefix={<PlusIcon />}
+                onClick={() => {
+                  if (isOpenFinal === false) {
+                    setIsOpen(true);
+                  }
+                  onAdd();
+                }}
+              />
+            ) : undefined
           }
         >
           <SectionTitleLabel>{props.label}</SectionTitleLabel>
@@ -155,6 +238,6 @@ export const CollapsibleSectionWithAddButton = ({
       }
     >
       {children}
-    </CollapsibleSectionBase>
+    </CollapsibleSectionRoot>
   );
 };

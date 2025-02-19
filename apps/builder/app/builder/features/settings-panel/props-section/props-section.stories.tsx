@@ -1,22 +1,17 @@
 import { useState } from "react";
-import type { Instance, Prop, Asset } from "@webstudio-is/sdk";
-import type { PropMeta } from "@webstudio-is/react-sdk";
+import type { PropMeta, Instance, Prop, Asset, Page } from "@webstudio-is/sdk";
 import { textVariants } from "@webstudio-is/design-system";
 import { PropsSection } from "./props-section";
 import { usePropsLogic } from "./use-props-logic";
 import {
-  assetsStore,
-  instancesStore,
-  pagesStore,
-  propsStore,
+  $assets,
+  $instances,
+  $pages,
+  $props,
   registerComponentLibrary,
-  selectedPageIdStore,
 } from "~/shared/nano-states";
-import { setMockEnv } from "~/shared/env";
-// eslint-disable-next-line import/no-internal-modules
-import catPath from "./props-panel.stories.assets/cat.jpg";
-
-setMockEnv({ ASSET_BASE_URL: catPath.replace("cat.jpg", "") });
+import { createDefaultPages } from "@webstudio-is/project-build";
+import { $awareness } from "~/shared/awareness";
 
 let id = 0;
 const unique = () => `${++id}`;
@@ -24,7 +19,7 @@ const unique = () => `${++id}`;
 const instanceId = unique();
 const projectId = unique();
 
-const page = (name: string, path: string) => ({
+const page = (name: string, path: string): Page => ({
   id: unique(),
   name,
   title: name,
@@ -33,9 +28,9 @@ const page = (name: string, path: string) => ({
   rootInstanceId: unique(),
 });
 
-pagesStore.set({
-  meta: {},
-  homePage: page("Home", "/"),
+$pages.set({
+  ...createDefaultPages({ rootInstanceId: unique() }),
+  homePage: page("Home", "") as Page & { path: "" },
   pages: [
     page("About", "/about"),
     page("Pricing", "/pricing"),
@@ -45,19 +40,19 @@ pagesStore.set({
 
 const getSectionInstanceId = (
   name: string,
-  page = pagesStore.get()?.homePage
+  page: Page = $pages.get()?.homePage as Page
 ) => (page === undefined ? "" : `${page.id}-${name}`);
 
 const addLinkableSections = (
   names: string[],
-  page = pagesStore.get()?.homePage
+  page: Page = $pages.get()?.homePage as Page
 ) => {
   if (page === undefined) {
     return;
   }
 
-  const instances = instancesStore.get();
-  const props = propsStore.get();
+  const instances = $instances.get();
+  const props = $props.get();
 
   const rootInstance: Instance = {
     id: page.rootInstanceId,
@@ -92,9 +87,9 @@ const addLinkableSections = (
 addLinkableSections(["contacts", "about"]);
 const rootInstance = addLinkableSections(
   ["company", "employees"],
-  pagesStore.get()?.pages[0]
+  $pages.get()?.pages[0]
 );
-selectedPageIdStore.set(pagesStore.get()?.homePage.id);
+$awareness.set({ pageId: $pages.get()?.homePage.id ?? "" });
 
 const instance: Instance = {
   id: instanceId,
@@ -116,7 +111,7 @@ const imageAsset = (name = "cat", format = "jpg"): Asset => ({
   meta: { width: 128, height: 180 },
 });
 
-assetsStore.set(
+$assets.set(
   new Map(
     [imageAsset("cat"), imageAsset("car", "png"), imageAsset("beach")].map(
       (asset) => [asset.id, asset]
@@ -205,6 +200,7 @@ const checkProp = (options = defaultOptions, label?: string): PropMeta => ({
 registerComponentLibrary({
   components: {},
   metas: {},
+  templates: {},
   propsMetas: {
     Box: {
       props: {
@@ -329,7 +325,7 @@ const startingProps: Prop[] = [
     instanceId,
     name: "addedUrlPage",
     type: "page",
-    value: pagesStore.get()?.pages[0].id ?? "",
+    value: $pages.get()?.pages[0].id ?? "",
   },
   {
     id: unique(),
@@ -337,7 +333,7 @@ const startingProps: Prop[] = [
     name: "addedUrlSection",
     type: "page",
     value: {
-      pageId: pagesStore.get()?.homePage.id ?? "",
+      pageId: $pages.get()?.homePage.id ?? "",
       instanceId: getSectionInstanceId("about"),
     },
   },
@@ -360,14 +356,14 @@ const startingProps: Prop[] = [
     instanceId,
     name: "addedUrlAttachment",
     type: "asset",
-    value: (Array.from(assetsStore.get().keys())[0] as string) ?? "",
+    value: (Array.from($assets.get().keys())[0] as string) ?? "",
   },
   {
     id: unique(),
     instanceId,
     name: "addedFile",
     type: "asset",
-    value: (Array.from(assetsStore.get().keys())[0] as string) ?? "",
+    value: (Array.from($assets.get().keys())[0] as string) ?? "",
   },
 ];
 
@@ -400,8 +396,8 @@ export const Story = () => {
         <PropsSection
           instanceId={instanceId}
           propsLogic={logic}
+          propValues={new Map()}
           component="Button"
-          setCssProperty={() => () => undefined}
         />
       </div>
       <pre style={textVariants.mono}>

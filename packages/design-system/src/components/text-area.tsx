@@ -10,45 +10,53 @@ import { Grid } from "./grid";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { ScrollArea } from "./scroll-area";
 
-const LINE_HEIGHT = 16;
-const PADDING_TOP = 6;
-const PADDING_BOTTOM = 4;
-const BORDER = 1;
+const lineHeight = 16;
+const paddingY = 3;
+const borderWidth = 1;
 
-const gridStyle = css(textVariants.regular, {
+const gridStyle = css({
   color: theme.colors.foregroundMain,
   borderRadius: theme.borderRadius[4],
-  border: `${BORDER}px solid ${theme.colors.borderMain}`,
+  border: `${borderWidth}px solid transparent`,
   background: theme.colors.backgroundControls,
-  paddingTop: PADDING_TOP,
-  paddingBottom: PADDING_BOTTOM,
+  paddingTop: paddingY,
+  paddingBottom: paddingY,
   boxSizing: "border-box",
   resize: "vertical",
   overflow: "auto",
   width: "100%",
-
+  "&:hover": {
+    borderColor: theme.colors.borderMain,
+  },
   "&:focus-within": {
     borderColor: theme.colors.borderFocus,
-    outline: `1px solid ${theme.colors.borderFocus}`,
+  },
+  "&:has([data-color=error])": {
+    borderColor: theme.colors.borderDestructiveMain,
+    "&:focus-within": {
+      outlineColor: theme.colors.borderDestructiveMain,
+    },
+  },
+  "&:has(textarea:disabled)": {
+    backgroundColor: theme.colors.backgroundInputDisabled,
   },
   variants: {
-    autoGrow: {
+    grow: {
       true: {
         resize: "none",
       },
     },
-    state: {
-      invalid: {
-        color: theme.colors.foregroundDestructive,
-        "&:not(:disabled):not(:focus-within)": {
-          borderColor: theme.colors.borderDestructiveMain,
-        },
-      },
+    variant: {
+      regular: textVariants.regular,
+      mono: textVariants.mono,
     },
+  },
+  defaultVariants: {
+    variant: "regular",
   },
 });
 
-const commonStyle = css(textVariants.regular, {
+const commonStyle = css({
   border: "none",
   paddingRight: theme.spacing[4],
   paddingLeft: theme.spacing[3],
@@ -69,7 +77,15 @@ const commonStyle = css(textVariants.regular, {
   },
   "&:disabled": {
     color: theme.colors.foregroundDisabled,
-    background: theme.colors.backgroundInputDisabled,
+  },
+  variants: {
+    variant: {
+      regular: textVariants.regular,
+      mono: textVariants.mono,
+    },
+  },
+  defaultVariants: {
+    variant: "regular",
   },
 });
 
@@ -82,11 +98,13 @@ type Props = Omit<
   css?: CSS;
   rows?: number;
   maxRows?: number;
-  state?: "invalid";
+  color?: "error";
   value?: string;
   defaultValue?: string;
   onChange?: (value: string) => void;
+  grow?: boolean;
   autoGrow?: boolean;
+  variant?: "regular" | "mono";
 };
 
 export const TextArea = forwardRef(
@@ -96,36 +114,38 @@ export const TextArea = forwardRef(
       className,
       rows = 3,
       maxRows,
-      state,
+      color,
       value,
       onChange,
+      grow,
       autoGrow,
+      variant = "regular",
+      defaultValue,
       ...props
     }: Props,
     ref: Ref<HTMLTextAreaElement>
   ) => {
     const [textValue, setTextValue] = useControllableState({
       prop: value,
-      defaultProp: props.defaultValue,
+      defaultProp: defaultValue,
       onChange,
     });
 
     // We could use `box-sizing:content-box` to avoid dealing with paddings and border here
     // But then, the user of the component will not be able to set `width` reliably
-    const minHeight =
-      rows * LINE_HEIGHT + PADDING_TOP + PADDING_BOTTOM + BORDER * 2;
+    const minHeight = rows * lineHeight + paddingY + paddingY + borderWidth * 2;
 
-    const height = autoGrow ? undefined : minHeight;
+    const height = autoGrow || grow ? undefined : minHeight;
 
     const maxHeight = maxRows
-      ? maxRows * LINE_HEIGHT + PADDING_TOP + PADDING_BOTTOM + BORDER * 2
+      ? maxRows * lineHeight + paddingY + paddingY + borderWidth * 2
       : undefined;
 
     return (
       <Grid
         className={gridStyle({
-          state,
-          autoGrow,
+          grow: grow || autoGrow,
+          variant,
           css: { height, minHeight, maxHeight },
         })}
         onClick={(event) => {
@@ -141,7 +161,7 @@ export const TextArea = forwardRef(
         <ScrollArea
           css={{
             height: "100%",
-            maxHeight: maxRows ? maxRows * LINE_HEIGHT : undefined,
+            maxHeight: maxRows ? maxRows * lineHeight : undefined,
             // Overwrite hack from scroll-area.tsx
             "& [data-radix-scroll-area-viewport] > div": {
               display: "grid!important",
@@ -151,8 +171,8 @@ export const TextArea = forwardRef(
           <div
             className={commonStyle({
               css: { visibility: "hidden", ...css },
-              state,
               className,
+              variant,
             })}
           >
             {textValue}{" "}
@@ -162,9 +182,10 @@ export const TextArea = forwardRef(
             spellCheck={false}
             className={textAreaStyle({
               css,
-              state,
               className,
+              variant,
             })}
+            data-color={color}
             onChange={(event) => setTextValue(event.target.value)}
             value={textValue}
             rows={rows}

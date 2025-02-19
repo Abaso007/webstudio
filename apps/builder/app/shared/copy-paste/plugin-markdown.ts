@@ -2,21 +2,18 @@ import { nanoid } from "nanoid";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
-import type { Breakpoint, Instance } from "@webstudio-is/sdk";
-import type { EmbedTemplateData } from "@webstudio-is/react-sdk";
+import type {
+  Breakpoint,
+  Instance,
+  WebstudioFragment,
+} from "@webstudio-is/sdk";
 import {
-  computeInstancesConstraints,
-  findClosestDroppableTarget,
-  insertTemplateData,
+  findClosestInsertable,
+  insertWebstudioFragmentAt,
 } from "../instance-utils";
-import {
-  breakpointsStore,
-  instancesStore,
-  registeredComponentMetasStore,
-  selectedInstanceSelectorStore,
-  selectedPageStore,
-} from "../nano-states";
+import { $breakpoints } from "../nano-states";
 import { isBaseBreakpoint } from "../breakpoints";
+import { denormalizeSrcProps } from "./asset-upload";
 
 const micromarkOptions = {
   extensions: [gfm()],
@@ -49,7 +46,7 @@ type Options = { generateId?: typeof nanoid };
 type Root = ReturnType<typeof fromMarkdown>;
 
 const toInstanceData = (
-  data: EmbedTemplateData,
+  data: WebstudioFragment,
   breakpointId: Breakpoint["id"],
   ast: { children: Root["children"] },
   options: Options = {}
@@ -110,8 +107,11 @@ const toInstanceData = (
       });
     }
     if (child.type === "inlineCode") {
-      instance.children.push({
-        type: "text",
+      props.push({
+        id: generateId(),
+        type: "string",
+        name: "code",
+        instanceId,
         value: child.value,
       });
       const styleSourceId = generateId();
@@ -125,8 +125,11 @@ const toInstanceData = (
       });
     }
     if (child.type === "code") {
-      instance.children.push({
-        type: "text",
+      props.push({
+        id: generateId(),
+        type: "string",
+        name: "code",
+        instanceId,
         value: child.value,
       });
       if (child.lang) {
@@ -183,56 +186,47 @@ const toInstanceData = (
   return children;
 };
 
-export const parse = (clipboardData: string, options?: Options) => {
+const parse = (clipboardData: string, options?: Options) => {
   const ast = fromMarkdown(clipboardData, micromarkOptions);
   if (ast.children.length === 0) {
     return;
   }
-  const breakpoints = breakpointsStore.get();
+  const breakpoints = $breakpoints.get();
   const breakpointValues = Array.from(breakpoints.values());
   const baseBreakpoint = breakpointValues.find(isBaseBreakpoint);
   if (baseBreakpoint === undefined) {
     return;
   }
-  const data: EmbedTemplateData = {
+  const data: WebstudioFragment = {
     children: [],
     instances: [],
     props: [],
+    breakpoints: [],
     styles: [],
     styleSources: [],
     styleSourceSelections: [],
     dataSources: [],
+    resources: [],
+    assets: [],
   };
   data.children = toInstanceData(data, baseBreakpoint.id, ast, options);
   return data;
 };
 
-export const onPaste = (clipboardData: string): boolean => {
-  const data = parse(clipboardData);
-  const selectedPage = selectedPageStore.get();
-  if (data === undefined || selectedPage === undefined) {
+export const onPaste = async (clipboardData: string) => {
+  let fragment = parse(clipboardData);
+  if (fragment === undefined) {
     return false;
   }
-  const metas = registeredComponentMetasStore.get();
-  const newInstances = new Map(
-    data.instances.map((instance) => [instance.id, instance])
-  );
-  const rootInstanceIds = data.children
-    .filter((child) => child.type === "id")
-    .map((child) => child.value);
-  // paste to the root if nothing is selected
-  const instanceSelector = selectedInstanceSelectorStore.get() ?? [
-    selectedPage.rootInstanceId,
-  ];
-  const dropTarget = findClosestDroppableTarget(
-    metas,
-    instancesStore.get(),
-    instanceSelector,
-    computeInstancesConstraints(metas, newInstances, rootInstanceIds)
-  );
-  if (dropTarget === undefined) {
+  fragment = await denormalizeSrcProps(fragment);
+  const insertable = findClosestInsertable(fragment);
+  if (insertable === undefined) {
     return false;
   }
-  insertTemplateData(data, dropTarget);
+  insertWebstudioFragmentAt(fragment, insertable);
   return true;
+};
+
+export const __testing__ = {
+  parse,
 };

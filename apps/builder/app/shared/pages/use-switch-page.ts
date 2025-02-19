@@ -1,47 +1,43 @@
 import { useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import { useNavigate } from "@remix-run/react";
-import type { Page } from "@webstudio-is/sdk";
-import { findPageByIdOrPath } from "@webstudio-is/project-build";
-import { useMount } from "~/shared/hook-utils/use-mount";
 import {
   $authToken,
-  pagesStore,
-  projectStore,
-  selectedPageStore,
-  selectedPageIdStore,
-  selectedPageHashStore,
-  selectedInstanceSelectorStore,
-  $isPreviewMode,
+  $pages,
+  $project,
+  $selectedPageHash,
+  $builderMode,
+  isBuilderMode,
+  setBuilderMode,
 } from "~/shared/nano-states";
 import { builderPath } from "~/shared/router-utils";
+import { $selectedPage, selectPage } from "../awareness";
+import { findPageByIdOrPath } from "@webstudio-is/sdk";
 
-export const switchPage = (pageId?: Page["id"], pageHash?: string) => {
-  const pages = pagesStore.get();
-
+const setPageStateFromUrl = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const pages = $pages.get();
   if (pages === undefined) {
     return;
   }
 
-  const page = findPageByIdOrPath(pages, pageId ?? "");
+  let mode = searchParams.get("mode");
 
-  selectedPageHashStore.set(pageHash ?? "");
-  selectedPageIdStore.set(page?.id ?? pages.homePage.id);
-  selectedInstanceSelectorStore.set([
-    page?.rootInstanceId ?? pages.homePage.rootInstanceId,
-  ]);
-};
+  // Check in case of BuilderMode rename
+  if (!isBuilderMode(mode)) {
+    mode = null;
+  }
 
-const setPageStateFromUrl = () => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const pages = pagesStore.get();
+  setBuilderMode(mode);
 
-  const pageId = searchParams.get("pageId") ?? pages?.homePage.id;
-  const pageHash = searchParams.get("pageHash") ?? "";
+  // check the page actually exists
+  // to avoid confusing the user with broken state
+  const pageId =
+    findPageByIdOrPath(searchParams.get("pageId") ?? "", pages)?.id ??
+    pages.homePage.id;
 
-  $isPreviewMode.set(searchParams.get("mode") === "preview");
-
-  switchPage(pageId, pageHash);
+  $selectedPageHash.set({ hash: searchParams.get("pageHash") ?? "" });
+  selectPage(pageId);
 };
 
 /**
@@ -55,14 +51,21 @@ const setPageStateFromUrl = () => {
  */
 export const useSyncPageUrl = () => {
   const navigate = useNavigate();
-  const page = useStore(selectedPageStore);
-  const pageHash = useStore(selectedPageHashStore);
-  const isPreviewMode = useStore($isPreviewMode);
+  const page = useStore($selectedPage);
+  const pageHash = useStore($selectedPageHash);
+  const builderMode = useStore($builderMode);
 
   // Get pageId and pageHash from URL
-  useMount(() => {
-    setPageStateFromUrl();
-  });
+  // once pages are loaded
+  useEffect(() => {
+    const unsubscribe = $pages.subscribe((pages) => {
+      if (pages) {
+        unsubscribe();
+        setPageStateFromUrl();
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     window.addEventListener("popstate", setPageStateFromUrl);
@@ -72,8 +75,8 @@ export const useSyncPageUrl = () => {
   }, []);
 
   useEffect(() => {
-    const project = projectStore.get();
-    const pages = pagesStore.get();
+    const project = $project.get();
+    const pages = $pages.get();
 
     if (page === undefined || project === undefined || pages === undefined) {
       return;
@@ -83,43 +86,45 @@ export const useSyncPageUrl = () => {
 
     const searchParamsPageId = searchParams.get("pageId") ?? pages.homePage.id;
     const searchParamsPageHash = searchParams.get("pageHash") ?? "";
-    const searchParamsIsPreviewMode = searchParams.get("mode") === "preview";
+    const searParamsModeRaw = searchParams.get("mode");
+    const searParamsMode = isBuilderMode(searParamsModeRaw)
+      ? searParamsModeRaw
+      : undefined;
 
     // Do not navigate on popstate change
     if (
       searchParamsPageId === page.id &&
-      searchParamsPageHash === pageHash &&
-      searchParamsIsPreviewMode === isPreviewMode
+      searchParamsPageHash === pageHash.hash &&
+      searParamsMode === builderMode
     ) {
       return;
     }
 
     navigate(
       builderPath({
-        projectId: project.id,
         pageId: page.id === pages.homePage.id ? undefined : page.id,
         authToken: $authToken.get(),
-        pageHash: pageHash === "" ? undefined : pageHash,
-        mode: isPreviewMode ? "preview" : undefined,
+        pageHash: pageHash.hash === "" ? undefined : pageHash.hash,
+        mode: builderMode === "design" ? undefined : builderMode,
       })
     );
-  }, [isPreviewMode, navigate, page, pageHash]);
+  }, [builderMode, navigate, page, pageHash]);
 };
 
 /**
  * Synchronize pageHash with scrolling position
  */
 export const useHashLinkSync = () => {
-  const pageHash = useStore(selectedPageHashStore);
+  const pageHash = useStore($selectedPageHash);
 
   useEffect(() => {
-    if (pageHash === "") {
+    if (pageHash.hash === "") {
       // native browser behavior is to do nothing if hash is empty
       // remix scroll to top, we emulate native
       return;
     }
 
-    let elementId = decodeURIComponent(pageHash);
+    let elementId = decodeURIComponent(pageHash.hash);
     if (elementId.startsWith("#")) {
       elementId = elementId.slice(1);
     }
@@ -129,6 +134,7 @@ export const useHashLinkSync = () => {
     if (element !== null) {
       element.scrollIntoView();
     }
+
     // Remix scroll to top if element not found
     // browser do nothing
   }, [pageHash]);

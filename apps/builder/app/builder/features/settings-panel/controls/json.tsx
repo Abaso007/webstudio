@@ -1,63 +1,94 @@
-import { theme, Box } from "@webstudio-is/design-system";
+import { useState } from "react";
+import { useStore } from "@nanostores/react";
+import { isLiteralExpression } from "@webstudio-is/sdk";
 import {
   type ControlProps,
-  getLabel,
   useLocalValue,
   VerticalLayout,
   Label,
+  updateExpressionValue,
+  $selectedInstanceScope,
+  useBindingState,
+  humanizeAttribute,
 } from "../shared";
-import { VariablesButton } from "../variables";
 import {
   ExpressionEditor,
   formatValue,
 } from "~/builder/shared/expression-editor";
+import {
+  BindingControl,
+  BindingPopover,
+} from "~/builder/shared/binding-popover";
 
 export const JsonControl = ({
   meta,
   prop,
   propName,
+  computedValue,
   deletable,
-  readOnly,
   onChange,
   onDelete,
-}: ControlProps<"json", "json">) => {
-  const valueString = formatValue(prop?.value ?? "");
+}: ControlProps<"json">) => {
+  const [error, setError] = useState<boolean>(false);
+  const valueString = formatValue(computedValue ?? "");
   const localValue = useLocalValue(valueString, (value) => {
+    const isLiteral = isLiteralExpression(value);
+    setError(isLiteral ? false : true);
+    // prevent executing expressions which depends on global variables
+    if (isLiteral === false) {
+      return;
+    }
     try {
       // wrap into parens to treat object expression as value instead of block
       const parsedValue = eval(`(${value})`);
-      onChange({ type: "json", value: parsedValue });
+      if (prop?.type === "expression") {
+        updateExpressionValue(prop.value, parsedValue);
+      } else {
+        onChange({ type: "json", value: parsedValue });
+      }
     } catch {
       // empty block
     }
   });
-  const label = getLabel(meta, propName);
+  const label = humanizeAttribute(meta.label || propName);
+
+  const { scope, aliases } = useStore($selectedInstanceScope);
+  const expression = prop?.type === "expression" ? prop.value : valueString;
+  const { overwritable, variant } = useBindingState(
+    prop?.type === "expression" ? prop.value : undefined
+  );
 
   return (
     <VerticalLayout
       label={
-        <Box css={{ position: "relative" }}>
-          <Label description={meta.description} readOnly={readOnly}>
-            {label}
-          </Label>
-          <VariablesButton
-            propId={prop?.id}
-            propName={propName}
-            propMeta={meta}
-          />
-        </Box>
+        <Label description={meta.description} readOnly={overwritable === false}>
+          {label}
+        </Label>
       }
       deletable={deletable}
       onDelete={onDelete}
     >
-      <Box css={{ py: theme.spacing[2] }}>
+      <BindingControl>
         <ExpressionEditor
-          readOnly={readOnly}
+          color={error ? "error" : undefined}
+          readOnly={overwritable === false}
           value={localValue.value}
           onChange={localValue.set}
-          onBlur={localValue.save}
+          onChangeComplete={localValue.save}
         />
-      </Box>
+        <BindingPopover
+          scope={scope}
+          aliases={aliases}
+          variant={variant}
+          value={expression}
+          onChange={(newExpression) =>
+            onChange({ type: "expression", value: newExpression })
+          }
+          onRemove={(evaluatedValue) =>
+            onChange({ type: "json", value: evaluatedValue })
+          }
+        />
+      </BindingControl>
     </VerticalLayout>
   );
 };

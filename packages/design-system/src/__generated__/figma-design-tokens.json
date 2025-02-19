@@ -5,18 +5,18 @@
         {
           "color": "#0000001a",
           "type": "dropShadow",
-          "x": 0,
-          "y": 2,
-          "blur": 7,
-          "spread": 0
+          "x": "0",
+          "y": "2",
+          "blur": "7",
+          "spread": "0"
         },
         {
           "color": "#0000004d",
           "type": "dropShadow",
-          "x": 0,
-          "y": 5,
-          "blur": 17,
-          "spread": 0
+          "x": "0",
+          "y": "5",
+          "blur": "17",
+          "spread": "0"
         }
       ],
       "type": "boxShadow"
@@ -77,7 +77,7 @@
         "type": "lineHeights"
       },
       "10": {
-        "value": "360",
+        "value": "260",
         "type": "lineHeights"
       }
     },
@@ -387,7 +387,7 @@
     },
     "background": {
       "panel": {
-        "value": "#f8f8f8",
+        "value": "#fff",
         "type": "color",
         "description": "background color for all panels, titles, columns and rows."
       },
@@ -397,7 +397,7 @@
         "description": "primary color, used in button"
       },
       "hover": {
-        "value": "#dfe3e6",
+        "value": "#efefef",
         "type": "color",
         "description": "hover color for toggle group button, icon button, toggle button, small icon button, small toggle button, nested select button, menu item large"
       },
@@ -407,12 +407,12 @@
         "description": "color for active elements"
       },
       "menu": {
-        "value": "#ededed",
+        "value": "#fff",
         "type": "color",
         "description": "background color for menu and select menu"
       },
       "controls": {
-        "value": "#ffffff",
+        "value": "#f5f5f5",
         "type": "color",
         "description": "background color for text input, toggle group, input field, color input, select button, panel button, text-area, search field, checkbox, spacing, flex control"
       },
@@ -438,7 +438,7 @@
           "description": "background color on neutral toast"
         },
         "dark": {
-          "value": "#7e868c",
+          "value": "#b2b2b2",
           "type": "color"
         }
       },
@@ -449,7 +449,7 @@
           "description": "used for destructive button and accent color on destructive toast"
         },
         "notification": {
-          "value": "#ffefef",
+          "value": "#ffe9e9",
           "type": "color",
           "description": "background for destructive toast"
         }
@@ -484,14 +484,14 @@
           "type": "color"
         },
         "notification": {
-          "value": "#edf6ff",
+          "value": "#e0f0ff",
           "type": "color",
           "description": "background for info banner & toast"
         }
       },
       "preset": {
         "main": {
-          "value": "#e6e8eb",
+          "value": "#e6e6e6",
           "type": "color"
         },
         "hover": {
@@ -538,7 +538,7 @@
       },
       "button": {
         "hover": {
-          "value": "#ffffff17",
+          "value": "#00000010",
           "type": "color",
           "description": "transparent color to create the hover state for button"
         },
@@ -560,12 +560,12 @@
       },
       "item": {
         "current": {
-          "value": "#096cff",
+          "value": "#e1f0ff",
           "type": "color",
           "description": "color for current item in the navigator item, menu item, pages panel item components"
         },
         "current-child": {
-          "value": "#e1f0ff",
+          "value": "{background.panel}",
           "type": "color",
           "description": "color for child of current item in the navigator item, pages panel item components"
         },
@@ -575,7 +575,7 @@
           "description": "color for the hidden current item in the navigator item component"
         },
         "menu-item-hover": {
-          "value": "#d3d3d3",
+          "value": "#efefef",
           "type": "color",
           "description": "The hover state on menu item components."
         }
@@ -596,7 +596,7 @@
       },
       "spacing": {
         "top-bottom": {
-          "value": "#f1f3f5",
+          "value": "#f8f8f8",
           "type": "color"
         },
         "left-right": {
@@ -605,13 +605,13 @@
           "description": "Left and right padding and margin background colors for the Position section UI."
         },
         "hover": {
-          "value": "#d7dbdf",
+          "value": "#e3e3e3",
           "type": "color"
         }
       },
       "style-source": {
         "token": {
-          "value": "#834df4",
+          "value": "{foreground.reusable}",
           "type": "color",
           "description": "Style sources that are tokens"
         },
@@ -665,7 +665,7 @@
         }
       },
       "canvas": {
-        "value": "#c7c7c7",
+        "value": "#eee",
         "type": "color",
         "description": "The color of the Builder UI canvas area background."
       },
@@ -697,7 +697,7 @@
         }
       },
       "menu-hint": {
-        "value": "#dedede",
+        "value": "#efefef",
         "type": "color",
         "description": "For the background of the hint menu item."
       },
@@ -768,7 +768,7 @@
           "type": "color"
         },
         "dashboard": {
-          "value": "#ededed",
+          "value": "radial-gradient(65.88% 47.48% at 50% 50%, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%),linear-gradient(0deg, rgba(255, 255, 255, 0) 49.46%, rgba(255, 255, 255, 0.33) 100%), linear-gradient(180deg, rgba(255, 174, 60, 0) 0%, rgba(230, 60, 254, 0.33) 100%),radial-gradient(211.58% 161.63% at 3.13% 100%, rgba(255, 174, 60, 0.3) 0%, rgba(227, 53, 255, 0) 100%), radial-gradient(107.1% 32.15% at 92.96% 5.04%, rgba(53, 255, 182, 0.2) 0%, rgba(74, 78, 250, 0.2) 100%), #EBFFFC;",
           "type": "color"
         },
         "regular-button-selected": {
@@ -819,7 +819,7 @@
     },
     "border": {
       "main": {
-        "value": "#c1c8cd",
+        "value": "#e6e6e6",
         "type": "color",
         "description": "color for separators, panel borders, preset borders, input fields, select buttons, panel buttons, text area, search field, menu, select menu, spacing controls,"
       },
@@ -979,16 +979,6 @@
         "type": "color",
         "description": "color for hidden item element within navigator item component"
       },
-      "link": {
-        "value": "#006adc",
-        "type": "color",
-        "description": "color for link text"
-      },
-      "link-visited": {
-        "value": "#793aaf",
-        "type": "color",
-        "description": "Text links that the user has visited."
-      },
       "flex-ui": {
         "main": {
           "value": "#c7c7c7",
@@ -996,7 +986,7 @@
           "description": "color for flex control ui elements"
         },
         "hover": {
-          "value": "#96c7f2",
+          "value": "#e3e3e3",
           "type": "color",
           "description": "color for hovered state of flex control ui elements"
         }
@@ -1062,7 +1052,7 @@
           "type": "color"
         },
         "flex-hover": {
-          "value": "#96c7f2",
+          "value": "#e3e3e3",
           "type": "color",
           "description": "color for hovered state of flex control ui elements"
         }
@@ -1104,10 +1094,9 @@
         "type": "color",
         "description": "The inverse color of our primary blue, when we want a contrasting highlight."
       },
-      "link-not-visited": {
-        "value": "#006adc",
-        "type": "color",
-        "description": "Text links that are not yet visited."
+      "reusable": {
+        "value": "#834df4",
+        "type": "color"
       }
     },
     "Brand": {
@@ -1115,10 +1104,10 @@
         "value": {
           "color": "#1717171a",
           "type": "dropShadow",
-          "x": 0,
-          "y": 4,
-          "blur": 4,
-          "spread": 0
+          "x": "0",
+          "y": "4",
+          "blur": "4",
+          "spread": "0"
         },
         "type": "boxShadow",
         "description": "elevation for small things within the dashboard"
@@ -1127,10 +1116,10 @@
         "value": {
           "color": "#1717171a",
           "type": "dropShadow",
-          "x": 0,
-          "y": 8,
-          "blur": 16,
-          "spread": 0
+          "x": "0",
+          "y": "8",
+          "blur": "16",
+          "spread": "0"
         },
         "type": "boxShadow",
         "description": "elevation for big things within the dashboard"
@@ -1362,7 +1351,7 @@
         "type": "fontSizes"
       },
       "7": {
-        "value": "360",
+        "value": "260",
         "type": "fontSizes"
       }
     },
@@ -1371,18 +1360,18 @@
         {
           "color": "#00000014",
           "type": "dropShadow",
-          "x": 0,
-          "y": 4,
-          "blur": 15,
-          "spread": 0
+          "x": "0",
+          "y": "4",
+          "blur": "15",
+          "spread": "0"
         },
         {
           "color": "#00000014",
           "type": "dropShadow",
-          "x": 0,
-          "y": 1,
-          "blur": 7,
-          "spread": 0
+          "x": "0",
+          "y": "1",
+          "blur": "7",
+          "spread": "0"
         }
       ],
       "type": "boxShadow",
@@ -1426,13 +1415,6 @@
       "value": "linear-gradient(180deg, #9697fc 0%, #4a4efa00 100%)",
       "type": "color"
     },
-    "backgrond": {
-      "menu-hint": {
-        "value": "#dedede",
-        "type": "color",
-        "description": "For the background of the hint menu item."
-      }
-    },
     "Link": {
       "value": {
         "fontFamily": "{fontFamilies.inter}",
@@ -1447,6 +1429,66 @@
       },
       "type": "typography",
       "description": "link text"
+    },
+    "Regular Link": {
+      "value": {
+        "fontFamily": "{fontFamilies.inter}",
+        "fontWeight": "{fontWeights.inter-0}",
+        "lineHeight": "{lineHeights.0}",
+        "fontSize": "{fontSize.2}",
+        "letterSpacing": "{letterSpacing.0}",
+        "paragraphSpacing": "{paragraphSpacing.0}",
+        "paragraphIndent": "{paragraphIndent.0}",
+        "textCase": "{textCase.none}",
+        "textDecoration": "{textDecoration.underline}"
+      },
+      "type": "typography",
+      "description": "Regular text underlined to represent links within a body of Regular text"
+    },
+    "Label Link": {
+      "value": {
+        "fontFamily": "{fontFamilies.inter}",
+        "fontWeight": "{fontWeights.inter-2}",
+        "lineHeight": "{lineHeights.0}",
+        "fontSize": "{fontSize.2}",
+        "letterSpacing": "{letterSpacing.0}",
+        "paragraphSpacing": "{paragraphSpacing.0}",
+        "paragraphIndent": "{paragraphIndent.0}",
+        "textCase": "{textCase.none}",
+        "textDecoration": "{textDecoration.underline}"
+      },
+      "type": "typography",
+      "description": "Label text with underline to represent links in Label text. Sentence case."
+    },
+    "Mono Bold Link": {
+      "value": {
+        "fontFamily": "{fontFamilies.roboto-mono}",
+        "fontWeight": "{fontWeights.roboto-mono-4}",
+        "lineHeight": "{lineHeights.0}",
+        "fontSize": "{fontSize.2}",
+        "letterSpacing": "{letterSpacing.2}",
+        "paragraphSpacing": "{paragraphSpacing.0}",
+        "paragraphIndent": "{paragraphIndent.0}",
+        "textCase": "{textCase.none}",
+        "textDecoration": "{textDecoration.underline}"
+      },
+      "type": "typography",
+      "description": "Mono Bold text style with underline to indicate a text link"
+    },
+    "Mono Link": {
+      "value": {
+        "fontFamily": "{fontFamilies.roboto-mono}",
+        "fontWeight": "{fontWeights.roboto-mono-3}",
+        "lineHeight": "{lineHeights.0}",
+        "fontSize": "{fontSize.2}",
+        "letterSpacing": "{letterSpacing.2}",
+        "paragraphSpacing": "{paragraphSpacing.0}",
+        "paragraphIndent": "{paragraphIndent.0}",
+        "textCase": "{textCase.none}",
+        "textDecoration": "{textDecoration.underline}"
+      },
+      "type": "typography",
+      "description": "Mono text style with underline to indicate a text link"
     }
   },
   "$themes": [],

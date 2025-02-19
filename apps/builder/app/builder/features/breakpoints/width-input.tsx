@@ -1,3 +1,4 @@
+import { useState, type KeyboardEvent, useEffect, useId } from "react";
 import { useStore } from "@nanostores/react";
 import { findApplicableMedia } from "@webstudio-is/css-engine";
 import {
@@ -7,22 +8,15 @@ import {
   Label,
   type NumericScrubValue,
   InputField,
-  useId,
   useScrub,
   handleNumericInputArrowKeys,
 } from "@webstudio-is/design-system";
-import { useCanvasWidth } from "~/builder/shared/nano-states";
-import { breakpointsStore, isResizingCanvasStore } from "~/shared/nano-states";
+import { $breakpoints, $isResizingCanvas } from "~/shared/nano-states";
 import {
-  selectedBreakpointIdStore,
-  selectedBreakpointStore,
+  $selectedBreakpointId,
+  $selectedBreakpoint,
 } from "~/shared/nano-states";
-import {
-  useState,
-  type ChangeEvent,
-  type KeyboardEvent,
-  useEffect,
-} from "react";
+import { $canvasWidth } from "~/builder/shared/nano-states";
 
 const useEnhancedInput = ({
   onChange,
@@ -50,20 +44,29 @@ const useEnhancedInput = ({
   };
 
   const { scrubRef, inputRef } = useScrub({
+    distanceThreshold: 2,
     value,
     onChange: handleChange,
     onChangeComplete: handleChangeComplete,
   });
 
+  const getValue = () => {
+    const value = inputRef.current?.valueAsNumber;
+    return typeof value === "number" && Number.isNaN(value) === false
+      ? value
+      : min;
+  };
+
   return {
     ref: scrubRef,
     inputRef,
-    onChange(event: ChangeEvent<HTMLInputElement>) {
-      setIntermediateValue(event.target.valueAsNumber);
+    onChange() {
+      setIntermediateValue(getValue());
     },
     onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
       if (event.key === "Enter") {
-        return handleChangeComplete(event.currentTarget.valueAsNumber);
+        handleChangeComplete(getValue());
+        return;
       }
       const nextValue = handleNumericInputArrowKeys(currentValue, event);
       if (nextValue !== currentValue) {
@@ -72,7 +75,7 @@ const useEnhancedInput = ({
       }
     },
     onBlur() {
-      handleChangeComplete(inputRef.current?.valueAsNumber ?? 0);
+      handleChangeComplete(getValue());
     },
     type: "number" as const,
     value: currentValue,
@@ -81,35 +84,35 @@ const useEnhancedInput = ({
 
 export const WidthInput = ({ min }: { min: number }) => {
   const id = useId();
-  const [canvasWidth, setCanvasWidth] = useCanvasWidth();
-  const selectedBreakpoint = useStore(selectedBreakpointStore);
-  const breakpoints = useStore(breakpointsStore);
+  const canvasWidth = useStore($canvasWidth);
+  const selectedBreakpoint = useStore($selectedBreakpoint);
+  const breakpoints = useStore($breakpoints);
 
   const onChange = (value: number) => {
-    setCanvasWidth(value);
+    $canvasWidth.set(value);
     const applicableBreakpoint = findApplicableMedia(
       Array.from(breakpoints.values()),
       value
     );
     if (applicableBreakpoint) {
-      selectedBreakpointIdStore.set(applicableBreakpoint.id);
+      $selectedBreakpointId.set(applicableBreakpoint.id);
     }
-    if (isResizingCanvasStore.get() === false) {
-      isResizingCanvasStore.set(true);
+    if ($isResizingCanvas.get() === false) {
+      $isResizingCanvas.set(true);
     }
   };
 
   const onChangeComplete = (value: number) => {
     onChange(value);
-    isResizingCanvasStore.set(false);
+    $isResizingCanvas.set(false);
   };
 
   useEffect(() => {
     return () => {
-      // Just in case we haven't received onChangeComplete, make sure we have set isResizingCanvasStore to false,
+      // Just in case we haven't received onChangeComplete, make sure we have set $isResizingCanvas to false,
       // otherwise the canvas will be stuck in a resizing state.
-      if (isResizingCanvasStore.get()) {
-        isResizingCanvasStore.set(false);
+      if ($isResizingCanvas.get()) {
+        $isResizingCanvas.set(false);
       }
     };
   }, []);
@@ -130,14 +133,13 @@ export const WidthInput = ({ min }: { min: number }) => {
       <Label htmlFor={id}>Width</Label>
       <InputField
         {...inputProps}
-        css={{ width: theme.spacing[19] }}
         id={id}
         suffix={
           <Text
             variant="unit"
             color="subtle"
             align="center"
-            css={{ width: theme.spacing[10] }}
+            css={{ paddingInline: theme.spacing[3] }}
           >
             PX
           </Text>

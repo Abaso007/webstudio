@@ -3,22 +3,39 @@ import { ExpressionEditor as ExpressionEditorComponent } from "./expression-edit
 import { useState } from "react";
 
 export default {
-  title: "Builder/ExpressionEditor",
+  title: "Builder/Expression Editor",
   component: ExpressionEditorComponent,
 } satisfies Meta;
 
 const scope = {
   $ws$dataSource$123: {
-    world: "!s fb skffsjdfksjdlkjslkkjlkj sjf lsdjsskljl kjsf",
-    hello: [],
-    aa: 0,
-    b: true,
+    long: "!s fb skffsjdfksjdlkjslkkjlkj sjf lsdjsskljl kjsf",
+    array: [],
+    number: 0,
+    boolean: true,
+    object: { param: "value" },
   },
   $ws$dataSource$321: { my: "god" },
+  $ws$dataSource$computed: [
+    // 0-11 keys
+    { "with space": 0 },
+    { "0_numeric": 0 },
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  ],
 };
 const aliases = new Map<string, string>([
   ["$ws$dataSource$123", "Hello world"],
   ["$ws$dataSource$321", "oh"],
+  ["$ws$dataSource$computed", "computed"],
 ]);
 
 const ExpressionStory = () => {
@@ -29,6 +46,7 @@ const ExpressionStory = () => {
       aliases={aliases}
       value={value}
       onChange={setValue}
+      onChangeComplete={setValue}
     />
   );
 };

@@ -1,24 +1,27 @@
-import { serverSyncStore } from "~/shared/sync";
+import { nanoid } from "nanoid";
+import { getStyleDeclKey, Instance, type StyleSource } from "@webstudio-is/sdk";
 import { generateDataFromEmbedTemplate } from "@webstudio-is/react-sdk";
-import { copywriter, type operations } from "@webstudio-is/ai";
+import type { copywriter, operations } from "@webstudio-is/ai";
+import { serverSyncStore } from "~/shared/sync";
 import { isBaseBreakpoint } from "~/shared/breakpoints";
 import {
-  deleteInstance as _deleteInstance,
-  insertTemplateData,
+  deleteInstanceMutable,
+  insertWebstudioFragmentAt,
+  updateWebstudioData,
+  type Insertable,
 } from "~/shared/instance-utils";
 import {
-  breakpointsStore,
-  instancesStore,
-  registeredComponentMetasStore,
-  selectedInstanceSelectorStore,
-  selectedInstanceStore,
-  styleSourceSelectionsStore,
-  styleSourcesStore,
-  stylesStore,
+  $breakpoints,
+  $instances,
+  $registeredComponentMetas,
+  $selectedInstanceSelector,
+  $styleSourceSelections,
+  $styleSources,
+  $styles,
 } from "~/shared/nano-states";
-import type { DroppableTarget, InstanceSelector } from "~/shared/tree-utils";
-import { getStyleDeclKey, Instance, type StyleSource } from "@webstudio-is/sdk";
-import { nanoid } from "nanoid";
+import type { InstanceSelector } from "~/shared/tree-utils";
+import { $selectedInstance, getInstancePath } from "~/shared/awareness";
+import { isInstanceDetachable } from "~/shared/matcher";
 
 export const applyOperations = (operations: operations.WsOperations) => {
   for (const operation of operations) {
@@ -34,7 +37,6 @@ export const applyOperations = (operations: operations.WsOperations) => {
         break;
       default:
         if (process.env.NODE_ENV === "development") {
-          // eslint-disable-next-line no-console
           console.warn(`Not supported operation: ${operation}`);
         }
     }
@@ -44,18 +46,8 @@ export const applyOperations = (operations: operations.WsOperations) => {
 const insertTemplateByOp = (
   operation: operations.generateInsertTemplateWsOperation
 ) => {
-  const breakpoints = breakpointsStore.get();
-  const breakpointValues = Array.from(breakpoints.values());
-  const baseBreakpoint = breakpointValues.find(isBaseBreakpoint);
-  if (baseBreakpoint === undefined) {
-    return false;
-  }
-  const metas = registeredComponentMetasStore.get();
-  const templateData = generateDataFromEmbedTemplate(
-    operation.template,
-    metas,
-    baseBreakpoint.id
-  );
+  const metas = $registeredComponentMetas.get();
+  const templateData = generateDataFromEmbedTemplate(operation.template, metas);
 
   // @todo Find a way to avoid the workaround below, peharps improving the prompt.
   // Occasionally the LLM picks a component name or the entire data-ws-id attribute as the insertion point.
@@ -65,7 +57,7 @@ const insertTemplateByOp = (
       componentName.includes(operation.addTo)
     )
   ) {
-    const selectedInstance = selectedInstanceStore.get();
+    const selectedInstance = $selectedInstance.get();
     if (selectedInstance) {
       operation.addTo = selectedInstance.id;
     }
@@ -77,7 +69,7 @@ const insertTemplateByOp = (
 
   const instanceSelector = computeSelectorForInstanceId(operation.addTo);
   if (instanceSelector) {
-    const currentInstance = instancesStore.get().get(instanceSelector[0]);
+    const currentInstance = $instances.get().get(instanceSelector[0]);
     // Only container components are allowed to have child elements.
     if (
       currentInstance &&
@@ -86,12 +78,11 @@ const insertTemplateByOp = (
       return;
     }
 
-    const dropTarget: DroppableTarget = {
+    const dropTarget: Insertable = {
       parentSelector: instanceSelector,
       position: operation.addAtIndex + 1,
     };
-
-    insertTemplateData(templateData, dropTarget);
+    insertWebstudioFragmentAt(templateData, dropTarget);
     return rootInstanceIds;
   }
 };
@@ -101,20 +92,33 @@ const deleteInstanceByOp = (
 ) => {
   const instanceSelector = computeSelectorForInstanceId(operation.wsId);
   if (instanceSelector) {
-    _deleteInstance(instanceSelector);
+    // @todo tell user they can't delete root
+    if (instanceSelector.length === 1) {
+      return;
+    }
+    const metas = $registeredComponentMetas.get();
+    updateWebstudioData((data) => {
+      if (
+        isInstanceDetachable({
+          metas,
+          instances: data.instances,
+          instanceSelector,
+        }) === false
+      ) {
+        return;
+      }
+      deleteInstanceMutable(
+        data,
+        getInstancePath(instanceSelector, data.instances)
+      );
+    });
   }
 };
 
 const applyStylesByOp = (operation: operations.editStylesWsOperation) => {
   serverSyncStore.createTransaction(
-    [
-      instancesStore,
-      styleSourceSelectionsStore,
-      styleSourcesStore,
-      stylesStore,
-      breakpointsStore,
-    ],
-    (instances, styleSourceSelections, styleSources, styles, breakpoints) => {
+    [$styleSourceSelections, $styleSources, $styles, $breakpoints],
+    (styleSourceSelections, styleSources, styles, breakpoints) => {
       const newStyles = [...operation.styles.values()];
 
       const breakpointValues = Array.from(breakpoints.values());
@@ -166,7 +170,7 @@ const applyStylesByOp = (operation: operations.editStylesWsOperation) => {
 };
 
 const computeSelectorForInstanceId = (instanceId: Instance["id"]) => {
-  const selectedInstanceSelector = selectedInstanceSelectorStore.get();
+  const selectedInstanceSelector = $selectedInstanceSelector.get();
   if (selectedInstanceSelector === undefined) {
     return;
   }
@@ -180,7 +184,7 @@ const computeSelectorForInstanceId = (instanceId: Instance["id"]) => {
   // that instance and the selected instance (a parent).
   let subtreeSelector: InstanceSelector = [];
   const parentInstancesById = new Map<Instance["id"], Instance["id"]>();
-  for (const instance of instancesStore.get().values()) {
+  for (const instance of $instances.get().values()) {
     for (const child of instance.children) {
       if (child.type === "id") {
         parentInstancesById.set(child.value, instance.id);
@@ -210,16 +214,14 @@ const computeSelectorForInstanceId = (instanceId: Instance["id"]) => {
 };
 
 export const patchTextInstance = (textInstance: copywriter.TextInstance) => {
-  serverSyncStore.createTransaction([instancesStore], (instances) => {
+  serverSyncStore.createTransaction([$instances], (instances) => {
     const currentInstance = instances.get(textInstance.instanceId);
 
     if (currentInstance === undefined) {
       return;
     }
 
-    const meta = registeredComponentMetasStore
-      .get()
-      .get(currentInstance.component);
+    const meta = $registeredComponentMetas.get().get(currentInstance.component);
 
     // Only container components are allowed to have child elements.
     if (meta?.type !== "container") {

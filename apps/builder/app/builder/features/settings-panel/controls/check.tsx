@@ -1,13 +1,19 @@
+import { useId } from "react";
+import { useStore } from "@nanostores/react";
+import { Checkbox, CheckboxAndLabel } from "@webstudio-is/design-system";
 import {
-  Box,
-  Checkbox,
-  CheckboxAndLabel,
-  useId,
-  theme,
-} from "@webstudio-is/design-system";
-import { humanizeString } from "~/shared/string-utils";
-import { type ControlProps, getLabel, VerticalLayout, Label } from "../shared";
-import { VariablesButton } from "../variables";
+  BindingControl,
+  BindingPopover,
+} from "~/builder/shared/binding-popover";
+import {
+  type ControlProps,
+  VerticalLayout,
+  Label,
+  $selectedInstanceScope,
+  updateExpressionValue,
+  useBindingState,
+  humanizeAttribute,
+} from "../shared";
 
 const add = (array: string[], item: string) => {
   if (array.includes(item)) {
@@ -27,60 +33,88 @@ export const CheckControl = ({
   meta,
   prop,
   propName,
+  computedValue,
   deletable,
-  readOnly,
   onChange,
   onDelete,
-}: ControlProps<"check" | "inline-check" | "multi-select", "string[]">) => {
-  const value = prop?.value ?? [];
+}: ControlProps<"check" | "inline-check" | "multi-select">) => {
+  const value = Array.isArray(computedValue)
+    ? computedValue.map((item) => String(item))
+    : [];
 
   // making sure that the current value is in the list of options
-  const options = value.reduce(
-    (result, item) => (result.includes(item) ? result : [item, ...result]),
-    meta.options
-  );
+  const options = Array.from(new Set([...meta.options, ...value]));
 
   const id = useId();
+  const label = humanizeAttribute(meta.label || propName);
+  const { scope, aliases } = useStore($selectedInstanceScope);
+  const expression =
+    prop?.type === "expression" ? prop.value : JSON.stringify(computedValue);
+  const { overwritable, variant } = useBindingState(
+    prop?.type === "expression" ? prop.value : undefined
+  );
 
   return (
     <VerticalLayout
       label={
-        <Box css={{ position: "relative" }}>
-          <Label
-            htmlFor={`${id}:${options[0]}`}
-            description={meta.description}
-            readOnly={readOnly}
-          >
-            {getLabel(meta, propName)}
-          </Label>
-          <VariablesButton
-            propId={prop?.id}
-            propName={propName}
-            propMeta={meta}
-          />
-        </Box>
+        <Label
+          htmlFor={`${id}:${options[0]}`}
+          description={meta.description}
+          readOnly={overwritable === false}
+        >
+          {label}
+        </Label>
       }
       deletable={deletable}
       onDelete={onDelete}
     >
-      <Box css={{ paddingTop: theme.spacing[2] }}>
+      <BindingControl>
         {options.map((option) => (
           <CheckboxAndLabel key={option}>
             <Checkbox
-              disabled={readOnly}
+              disabled={overwritable === false}
               checked={value.includes(option)}
               onCheckedChange={(checked) => {
-                onChange({
-                  type: "string[]",
-                  value: checked ? add(value, option) : remove(value, option),
-                });
+                const newValue = checked
+                  ? add(value, option)
+                  : remove(value, option);
+                if (prop?.type === "expression") {
+                  updateExpressionValue(prop.value, newValue);
+                } else {
+                  onChange({ type: "string[]", value: newValue });
+                }
               }}
               id={`${id}:${option}`}
             />
-            <Label htmlFor={`${id}:${option}`}>{humanizeString(option)}</Label>
+            <Label htmlFor={`${id}:${option}`}>{option}</Label>
           </CheckboxAndLabel>
         ))}
-      </Box>
+        <BindingPopover
+          scope={scope}
+          aliases={aliases}
+          validate={(value) => {
+            const valid =
+              Array.isArray(value) &&
+              value.every((item) => typeof item === "string");
+            if (value !== undefined && valid === false) {
+              return `${label} expects an array of strings`;
+            }
+          }}
+          variant={variant}
+          value={expression}
+          onChange={(newExpression) =>
+            onChange({ type: "expression", value: newExpression })
+          }
+          onRemove={(evaluatedValue) =>
+            onChange({
+              type: "string[]",
+              value: Array.isArray(evaluatedValue)
+                ? evaluatedValue.map((item) => String(item))
+                : [],
+            })
+          }
+        />
+      </BindingControl>
     </VerticalLayout>
   );
 };

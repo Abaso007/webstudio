@@ -6,13 +6,14 @@ import {
   Flex,
   SmallIconButton,
   Text,
+  FloatingPanel,
 } from "@webstudio-is/design-system";
-import { assetsStore } from "~/shared/nano-states";
-import { FloatingPanel } from "~/builder/shared/floating-panel";
+import { TrashIcon } from "@webstudio-is/icons";
+import type { Prop } from "@webstudio-is/sdk";
+import { $assets } from "~/shared/nano-states";
 import { ImageManager } from "~/builder/shared/image-manager";
 import { type ControlProps } from "../shared";
 import { acceptToMimeCategories } from "@webstudio-is/asset-uploader";
-import { TrashIcon } from "@webstudio-is/icons";
 
 // tests whether we can use ImageManager for the given "accept" value
 const isImageAccept = (accept?: string) => {
@@ -23,25 +24,25 @@ const isImageAccept = (accept?: string) => {
   );
 };
 
-type AssetControlProps = ControlProps<unknown, "asset">;
+type AssetControlProps = ControlProps<unknown>;
 
 type Props = {
   accept?: string;
-  prop: AssetControlProps["prop"];
+  prop?: Extract<Prop, { type: "asset" }>;
   onChange: AssetControlProps["onChange"];
   onDelete: AssetControlProps["onDelete"];
 };
 
 export const SelectAsset = ({ prop, onChange, onDelete, accept }: Props) => {
-  const assetStore = useMemo(
+  const $asset = useMemo(
     () =>
-      computed(assetsStore, (assets) =>
+      computed($assets, (assets) =>
         prop ? assets.get(prop.value) : undefined
       ),
     [prop]
   );
 
-  const asset = useStore(assetStore);
+  const asset = useStore($asset);
 
   if (isImageAccept(accept) === false) {
     return <Text color="destructive">Unsupported accept value: {accept}</Text>;
@@ -53,9 +54,7 @@ export const SelectAsset = ({ prop, onChange, onDelete, accept }: Props) => {
         title="Images"
         content={
           <ImageManager
-            onChange={(asset) =>
-              onChange({ type: "asset", value: asset.id }, asset)
-            }
+            onChange={(assetId) => onChange({ type: "asset", value: assetId })}
             accept={accept}
           />
         }

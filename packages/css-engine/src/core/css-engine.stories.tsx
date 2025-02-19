@@ -1,44 +1,49 @@
-import { CssEngine } from "./css-engine";
+import { createRegularStyleSheet } from "./create-style-sheet";
 
 export default {
   component: "CssEngine",
 };
 
-const style0 = {
-  color: { type: "keyword", value: "red" },
-} as const;
-
 const mediaRuleOptions0 = { minWidth: 0 } as const;
 const mediaId = "0";
 
 export const Basic = () => {
-  const engine = new CssEngine({ name: "test" });
-  engine.addMediaRule(mediaId, mediaRuleOptions0);
-  const rule = engine.addStyleRule(".test", {
-    style: style0,
+  const sheet = createRegularStyleSheet();
+  sheet.addMediaRule(mediaId, mediaRuleOptions0);
+  const rule = sheet.addNestingRule(".test");
+  rule.setDeclaration({
     breakpoint: "0",
+    selector: "",
+    property: "color",
+    value: { type: "keyword", value: "red" },
   });
-  engine.render();
+  sheet.render();
   return (
     <>
       <div className="test">Should be red</div>
       <button
         onClick={() => {
-          rule.styleMap.set("color", { type: "keyword", value: "green" });
-          engine.render();
+          rule.setDeclaration({
+            breakpoint: "0",
+            selector: "",
+            property: "color",
+            value: { type: "keyword", value: "green" },
+          });
+          sheet.render();
         }}
       >
         Make it green
       </button>
       <button
         onClick={() => {
-          engine.addStyleRule(".test", {
-            style: {
-              backgroundColor: { type: "keyword", value: "yellow" },
-            },
+          const rule = sheet.addNestingRule(".test");
+          rule.setDeclaration({
             breakpoint: "0",
+            selector: "",
+            property: "backgroundColor",
+            value: { type: "keyword", value: "yellow" },
           });
-          engine.render();
+          sheet.render();
         }}
       >
         Add rule with yellow background

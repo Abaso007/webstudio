@@ -3,13 +3,17 @@ import {
   theme,
   css,
   Flex,
-  Text,
   Toolbar,
   ToolbarToggleGroup,
+  ToolbarButton,
+  Text,
+  type CSS,
+  Tooltip,
+  Kbd,
 } from "@webstudio-is/design-system";
 import type { Project } from "@webstudio-is/project";
-import { selectedPageStore } from "~/shared/nano-states";
-import { PreviewButton } from "./preview";
+import { $editingPageId, $pages } from "~/shared/nano-states";
+
 import { ShareButton } from "./share";
 import { PublishButton } from "./publish";
 import { SyncStatus } from "./sync-status";
@@ -19,48 +23,100 @@ import {
   BreakpointsPopover,
 } from "../breakpoints";
 import { ViewMode } from "./view-mode";
+import { AddressBarPopover } from "../address-bar";
+import { toggleActiveSidebarPanel } from "~/builder/shared/nano-states";
+import type { ReactNode } from "react";
+import { CloneButton } from "./clone";
+import { $selectedPage } from "~/shared/awareness";
+import { BuilderModeDropDown } from "./builder-mode";
+
+const PagesButton = () => {
+  const page = useStore($selectedPage);
+  if (page === undefined) {
+    return;
+  }
+
+  return (
+    <Tooltip
+      content={
+        <Text>
+          {"Pages or page settings "}
+          <Kbd value={["alt", "click"]} color="moreSubtle" />
+        </Text>
+      }
+    >
+      <ToolbarButton
+        css={{
+          paddingInline: theme.panel.paddingInline,
+          maxWidth: theme.spacing[24],
+        }}
+        aria-label="Toggle Pages"
+        onClick={(event) => {
+          $editingPageId.set(event.altKey ? page.id : undefined);
+          toggleActiveSidebarPanel("pages");
+        }}
+        tabIndex={0}
+      >
+        <Text truncate>{page.name}</Text>
+      </ToolbarButton>
+    </Tooltip>
+  );
+};
 
 const topbarContainerStyle = css({
+  position: "relative",
   display: "flex",
   background: theme.colors.backgroundTopbar,
   height: theme.spacing[15],
-  boxShadow: `inset 0 -1px 0 0 ${theme.colors.panelOutline}`,
-  paddingRight: theme.spacing[9],
+  paddingRight: theme.panel.paddingInline,
   color: theme.colors.foregroundContrastMain,
 });
 
-type TopbarProps = {
-  gridArea: string;
-  project: Project;
-  hasProPlan: boolean;
+// We are hiding some elements on mobile because we want to let user
+// test in preview mode with device simulators
+const hideOnMobile: CSS = {
+  "@media (max-width: 640px)": {
+    display: "none",
+  },
 };
 
-export const Topbar = ({ gridArea, project, hasProPlan }: TopbarProps) => {
-  const page = useStore(selectedPageStore);
+type TopbarProps = {
+  project: Project;
+  hasProPlan: boolean;
+  loading: ReactNode;
+  css: CSS;
+};
 
+export const Topbar = ({ project, hasProPlan, css, loading }: TopbarProps) => {
+  const pages = useStore($pages);
   return (
-    <nav className={topbarContainerStyle({ css: { gridArea } })}>
+    <nav className={topbarContainerStyle({ css })}>
       <Flex grow={false} shrink={false}>
         <Menu />
       </Flex>
-      <Flex
-        css={{ px: theme.spacing[9], maxWidth: theme.spacing[24] }}
-        align="center"
-      >
-        <Text variant="labelsTitleCase" color="contrast" truncate>
-          {page?.name ?? ""}
-        </Text>
-      </Flex>
-      <Flex css={{ minWidth: theme.spacing[23] }}>
-        <BreakpointsPopover />
-      </Flex>
-      <Flex grow align="center" justify="center">
-        <BreakpointsSelectorContainer />
-      </Flex>
+
+      {/* prevent rendering when data is not loaded */}
+      {pages && (
+        <>
+          <Flex align="center">
+            <PagesButton />
+            <AddressBarPopover />
+          </Flex>
+          <Flex css={{ minWidth: theme.spacing[23], ...hideOnMobile }}>
+            <BreakpointsPopover />
+          </Flex>
+          <Flex grow></Flex>
+          <Flex align="center" justify="center" css={hideOnMobile}>
+            <BreakpointsSelectorContainer />
+          </Flex>
+        </>
+      )}
+      <Flex grow></Flex>
       <Toolbar>
         <ToolbarToggleGroup
           type="single"
           css={{
+            isolation: "isolate",
             justifyContent: "flex-end",
             gap: theme.spacing[5],
             width: theme.spacing[30],
@@ -68,11 +124,14 @@ export const Topbar = ({ gridArea, project, hasProPlan }: TopbarProps) => {
         >
           <ViewMode />
           <SyncStatus />
-          <PreviewButton />
+
+          <BuilderModeDropDown />
           <ShareButton projectId={project.id} hasProPlan={hasProPlan} />
           <PublishButton projectId={project.id} />
+          <CloneButton />
         </ToolbarToggleGroup>
       </Toolbar>
+      {loading}
     </nav>
   );
 };

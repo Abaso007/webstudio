@@ -52,9 +52,43 @@ export const jsonToGlobalConfig = (json: unknown) => {
 
 export type GlobalConfig = z.infer<typeof zGlobalConfig>;
 
-export const PROJECT_TEMPALTES = [
-  "vanilla",
-  "vercel",
-  "netlify-functions",
-  "netlify-edge-functions",
-] as const;
+export const PROJECT_TEMPLATES = [
+  {
+    value: "docker" as const,
+    label: "Docker",
+    expand: ["react-router", "react-router-docker"],
+  },
+  {
+    value: "vercel" as const,
+    label: "Vercel",
+    expand: ["react-router", "react-router-vercel"],
+  },
+  {
+    value: "netlify" as const,
+    label: "Netlify",
+    expand: ["react-router", "react-router-netlify"],
+  },
+  {
+    value: "ssg" as const,
+    label: "Static Site Generation (SSG)",
+  },
+  {
+    value: "ssg-netlify" as const,
+    label: "Static Site Generation (SSG) Netlify",
+    expand: ["ssg", "ssg-netlify"],
+  },
+  {
+    value: "ssg-vercel" as const,
+    label: "Static Site Generation (SSG) Vercel",
+    expand: ["ssg", "ssg-vercel"],
+  },
+];
+
+// This feature will be made public eventually; currently, it’s only used for internal tasks.
+export const INTERNAL_TEMPLATES = [
+  {
+    value: "cloudflare",
+    label: "Cloudflare",
+    expand: ["defaults", "cloudflare"],
+  },
+];

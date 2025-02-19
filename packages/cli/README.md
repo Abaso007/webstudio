@@ -35,7 +35,7 @@ To get started with the Webstudio CLI:
 1. Download and install the CLI using the following command:
 
    ```bash
-   npm install -g webstudio
+   npm install -g webstudio@latest
    ```
 
 1. Confirm the installation by checking the CLI version:
@@ -108,7 +108,7 @@ If you want to build a production version of the app, you can run `npm run build
 
 ### Vercel
 
-Once you've built the project locally, you can use the [Vercel CLI](https://vercel.com/docs/cli) to deploy your site directly to [Vercel](https://vercel.com):
+Once you've built the project locally, you can use the [Vercel CLI](https://vercel.com/docs/cli) to deploy your project directly to [Vercel](https://vercel.com):
 
 ```bash
 vercel deploy
@@ -118,7 +118,7 @@ Follow the instructions [here](https://vercel.com/docs/cli) to install the `verc
 
 ### Netlify
 
-If you want to deploy to netlify, you can use [Netlify CLI](https://docs.netlify.com/cli/get-started/) to deploy your site directly to [Netlify](https://netlify.com/):
+If you want to deploy to netlify, you can use [Netlify CLI](https://docs.netlify.com/cli/get-started/) to deploy your project directly to [Netlify](https://netlify.com/):
 
 ```bash
 netlify deploy
@@ -129,13 +129,7 @@ You can configure the project to support netlify serverless/edge-functions respe
 You can manually change it using the `build` command. For serverless functions:
 
 ```bash
-webstudio build --template netlify-functions
-```
-
-and for edge functions:
-
-```bash
-webstudio build --template netlify-edge-functions
+webstudio build --template netlify
 ```
 
 ## Important Notes

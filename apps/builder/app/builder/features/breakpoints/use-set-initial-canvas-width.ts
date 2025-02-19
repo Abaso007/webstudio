@@ -1,32 +1,29 @@
 import { useEffect } from "react";
 import type { Breakpoint } from "@webstudio-is/sdk";
+import { $workspaceRect, $canvasWidth } from "~/builder/shared/nano-states";
 import {
-  workspaceRectStore,
-  canvasWidthStore,
-} from "~/builder/shared/nano-states";
-import {
-  breakpointsStore,
-  selectedBreakpointStore,
+  $breakpoints,
+  $isPreviewMode,
+  $selectedBreakpoint,
 } from "~/shared/nano-states";
-import { findInitialWidth } from "./find-initial-width";
+import { calcCanvasWidth } from "./calc-canvas-width";
 
-// Fixes initial canvas width jump on wide screens.
-// Calculate canvas width during SSR based on known initial width for wide screens.
-export const setInitialCanvasWidth = (breakpointId: Breakpoint["id"]) => {
-  const workspaceRect = workspaceRectStore.get();
-  const breakpoints = breakpointsStore.get();
-  const breakpoint = breakpoints.get(breakpointId);
-  if (workspaceRect === undefined || breakpoint === undefined) {
+export const setCanvasWidth = (breakpointId: Breakpoint["id"]) => {
+  const workspaceRect = $workspaceRect.get();
+  const breakpoints = $breakpoints.get();
+  const selectedBreakpoint = breakpoints.get(breakpointId);
+
+  if (workspaceRect === undefined || selectedBreakpoint === undefined) {
     return false;
   }
 
-  const width = findInitialWidth(
-    Array.from(breakpoints.values()),
-    breakpoint,
-    workspaceRect.width
-  );
+  const width = calcCanvasWidth({
+    breakpoints: Array.from(breakpoints.values()),
+    selectedBreakpoint,
+    workspaceWidth: workspaceRect.width,
+  });
 
-  canvasWidthStore.set(width);
+  $canvasWidth.set(width);
   return true;
 };
 
@@ -36,38 +33,38 @@ export const setInitialCanvasWidth = (breakpointId: Breakpoint["id"]) => {
 export const useSetCanvasWidth = () => {
   useEffect(() => {
     const update = () => {
-      const breakpoints = breakpointsStore.get();
-      const workspaceRect = workspaceRectStore.get();
-      if (workspaceRect === undefined || breakpoints.size === 0) {
-        return;
-      }
-      const breakpointValues = Array.from(breakpoints.values());
-      const selectedBreakpoint = selectedBreakpointStore.get();
-
-      // When there is selected breakpoint, we want to find the lowest possible size
-      // that is bigger than all max breakpoints and smaller than all min breakpoints.
+      const selectedBreakpoint = $selectedBreakpoint.get();
       if (selectedBreakpoint) {
-        const width = findInitialWidth(
-          breakpointValues,
-          selectedBreakpoint,
-          workspaceRect.width
-        );
-        canvasWidthStore.set(width);
+        // When there is selected breakpoint, we want to find the smallest possible size
+        // that is bigger than any max-width breakpoints and smaller than any min-width breakpoints.
+        // When on base breakpoint it will be the biggest possible but smaller than the workspace.
+        setCanvasWidth(selectedBreakpoint.id);
       }
     };
 
-    const unsubscribeBreakpointStore = breakpointsStore.subscribe(update);
-    const unsubscribeRectStore = workspaceRectStore.listen((workspaceRect) => {
-      if (workspaceRect === undefined) {
-        return;
+    const unsubscribeBreakpoints = $breakpoints.subscribe(update);
+    const unsubscribeRect = $workspaceRect.listen(update);
+    const unsubscribeIsPreviewMode = $isPreviewMode.listen((isPreviewMode) => {
+      if (isPreviewMode) {
+        update();
       }
-      unsubscribeRectStore?.();
-      update();
     });
+    const unsubscribeSelectedBreakpoint = $selectedBreakpoint.listen(
+      (selectedBreakpoint) => {
+        // This will set initial width of the canvas once the initial selected breakpoint is known.
+        if (selectedBreakpoint) {
+          update();
+          // We can unsubscribe right away as we only need this once.
+          unsubscribeSelectedBreakpoint();
+        }
+      }
+    );
 
     return () => {
-      unsubscribeBreakpointStore();
-      unsubscribeRectStore?.();
+      unsubscribeBreakpoints();
+      unsubscribeRect();
+      unsubscribeIsPreviewMode();
+      unsubscribeSelectedBreakpoint();
     };
   }, []);
 };

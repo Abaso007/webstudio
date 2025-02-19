@@ -1,16 +1,17 @@
-import { type ReactNode, useState, useEffect } from "react";
+import { type ReactNode, useEffect, useId, useMemo } from "react";
 import { useStore } from "@nanostores/react";
 import { computed } from "nanostores";
 import {
   theme,
-  useId,
   InputField,
   Flex,
   ToggleGroup,
   ToggleGroupButton,
   Select,
   Tooltip,
-  Box,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
 } from "@webstudio-is/design-system";
 import {
   AttachmentIcon,
@@ -19,25 +20,37 @@ import {
   PageIcon,
   PhoneIcon,
 } from "@webstudio-is/icons";
-import type { Instance, Page } from "@webstudio-is/sdk";
-import { findTreeInstanceIds } from "@webstudio-is/sdk";
-import { instancesStore, pagesStore, propsStore } from "~/shared/nano-states";
+import type { Folder, Instance, Page } from "@webstudio-is/sdk";
+import {
+  findParentFolderByChildId,
+  findTreeInstanceIds,
+} from "@webstudio-is/sdk";
+import { $instances, $pages, $props } from "~/shared/nano-states";
+import {
+  BindingControl,
+  BindingPopover,
+} from "~/builder/shared/binding-popover";
 import {
   type ControlProps,
-  getLabel,
   useLocalValue,
   VerticalLayout,
   Label,
+  updateExpressionValue,
+  $selectedInstanceScope,
+  useBindingState,
+  humanizeAttribute,
 } from "../shared";
 import { SelectAsset } from "./select-asset";
-import { VariablesButton } from "../variables";
+import { createRootFolder } from "@webstudio-is/project-build";
 
-type UrlControlProps = ControlProps<"url", "string" | "page" | "asset">;
+type UrlControlProps = ControlProps<"url">;
 
 type BaseControlProps = {
   id: string;
   instanceId: string;
+  readOnly: boolean;
   prop: UrlControlProps["prop"];
+  value: string;
   onChange: UrlControlProps["onChange"];
   onDelete: UrlControlProps["onDelete"];
 };
@@ -79,11 +92,14 @@ const addHttpsIfMissing = (url: string) => {
   return url;
 };
 
-const BaseUrl = ({ prop, onChange, id }: BaseControlProps) => {
-  const localValue = useLocalValue(
-    prop?.type === "string" ? prop.value : "",
-    (value) => onChange({ type: "string", value })
-  );
+const BaseUrl = ({ readOnly, prop, value, onChange, id }: BaseControlProps) => {
+  const localValue = useLocalValue(value, (value) => {
+    if (prop?.type === "expression") {
+      updateExpressionValue(prop.value, value);
+    } else {
+      onChange({ type: "string", value });
+    }
+  });
 
   useEffect(() => {
     return () => localValue.set(addHttpsIfMissing(localValue.value));
@@ -93,9 +109,10 @@ const BaseUrl = ({ prop, onChange, id }: BaseControlProps) => {
   return (
     <Row>
       <InputField
+        disabled={readOnly}
         id={id}
         value={localValue.value}
-        placeholder="http://www.url.com"
+        placeholder="https://www.url.com"
         onChange={(event) => localValue.set(event.target.value)}
         onBlur={() => {
           localValue.set(addHttpsIfMissing(localValue.value));
@@ -113,18 +130,29 @@ const BaseUrl = ({ prop, onChange, id }: BaseControlProps) => {
   );
 };
 
-const BasePhone = ({ prop, onChange, id }: BaseControlProps) => {
+const BasePhone = ({
+  readOnly,
+  prop,
+  value,
+  onChange,
+  id,
+}: BaseControlProps) => {
   const localValue = useLocalValue(
-    prop?.type === "string" && prop.value.startsWith("tel:")
-      ? prop.value.slice(4)
-      : "",
-    (value) => onChange({ type: "string", value: `tel:${value}` })
+    value.startsWith("tel:") ? value.slice(4) : "",
+    (value) => {
+      if (prop?.type === "expression") {
+        updateExpressionValue(prop.value, `tel:${value}`);
+      } else {
+        onChange({ type: "string", value: `tel:${value}` });
+      }
+    }
   );
 
   return (
     <Row>
       <InputField
         id={id}
+        disabled={readOnly}
         value={localValue.value}
         type="tel"
         placeholder="+15555555555"
@@ -141,16 +169,13 @@ const BasePhone = ({ prop, onChange, id }: BaseControlProps) => {
   );
 };
 
-const propToEmail = (prop?: UrlControlProps["prop"]) => {
-  if (prop?.type !== "string") {
-    return { email: "", subject: "" };
-  }
-
+const propToEmail = (value: string) => {
   let url;
   try {
-    url = new URL(prop.value);
-    // eslint-disable-next-line no-empty
-  } catch {}
+    url = new URL(value);
+  } catch {
+    // empty block
+  }
 
   if (url === undefined || url.protocol !== "mailto:") {
     return { email: "", subject: "" };
@@ -162,23 +187,39 @@ const propToEmail = (prop?: UrlControlProps["prop"]) => {
   };
 };
 
-const BaseEmail = ({ prop, onChange, id }: BaseControlProps) => {
-  const localValue = useLocalValue(propToEmail(prop), ({ email, subject }) => {
+const BaseEmail = ({
+  readOnly,
+  prop,
+  value,
+  onChange,
+  id,
+}: BaseControlProps) => {
+  const localValue = useLocalValue(propToEmail(value), ({ email, subject }) => {
     if (email === "") {
-      onChange({ type: "string", value: "" });
+      if (prop?.type === "expression") {
+        updateExpressionValue(prop.value, "");
+      } else {
+        onChange({ type: "string", value: "" });
+      }
       return;
     }
     const url = new URL(`mailto:${email}`);
     if (subject !== "") {
       url.searchParams.set("subject", subject);
     }
-    onChange({ type: "string", value: url.toString() });
+    const value = url.toString();
+    if (prop?.type === "expression") {
+      updateExpressionValue(prop.value, value);
+    } else {
+      onChange({ type: "string", value });
+    }
   });
 
   return (
     <>
       <Row>
         <InputField
+          disabled={readOnly}
           id={id}
           value={localValue.value.email}
           type="email"
@@ -198,6 +239,7 @@ const BaseEmail = ({ prop, onChange, id }: BaseControlProps) => {
       <Row>
         <Label htmlFor={`${id}-subject`}>Subject</Label>
         <InputField
+          disabled={readOnly}
           id={`${id}-subject`}
           value={localValue.value.subject}
           placeholder="You've got mail!"
@@ -221,7 +263,7 @@ const BaseEmail = ({ prop, onChange, id }: BaseControlProps) => {
 };
 
 const instancesPerPageStore = computed(
-  [instancesStore, pagesStore],
+  [$instances, $pages],
   (instances, pages) =>
     (pages ? [pages.homePage, ...pages.pages] : []).map((page) => ({
       pageId: page.id,
@@ -229,8 +271,8 @@ const instancesPerPageStore = computed(
     }))
 );
 
-const sectionsStore = computed(
-  [instancesPerPageStore, propsStore],
+const $sections = computed(
+  [instancesPerPageStore, $props],
   (instancesPerPage, props) => {
     const sections: Array<{
       pageId: Page["id"];
@@ -261,29 +303,42 @@ const sectionsStore = computed(
 );
 
 const getId = (data: { id: string }) => data.id;
-const getName = (data: { name: string }) => data.name;
 const getHash = (data: { hash: string }) => data.hash;
 const getInstanceId = (data: { instanceId: string }) => data.instanceId;
 
 const BasePage = ({ prop, onChange }: BaseControlProps) => {
-  const pages = useStore(pagesStore);
+  const pages = useStore($pages);
+  const { allPages, pageSelectOptions } = useMemo(() => {
+    const allPages = pages ? [pages.homePage, ...pages.pages] : [];
+    const rootFolder = createRootFolder();
+    const pageSelectOptions = new Map<
+      Folder["id"],
+      { name: Folder["name"]; pages: Array<Page> }
+    >();
+    for (const page of allPages) {
+      const folder =
+        findParentFolderByChildId(page.id, pages?.folders ?? []) ?? rootFolder;
+      let group = pageSelectOptions.get(folder.id);
+      if (group === undefined) {
+        group = { name: folder.name, pages: [] };
+        pageSelectOptions.set(folder.id, group);
+      }
+      group.pages.push(page);
+    }
+    return { pageSelectOptions, allPages };
+  }, [pages]);
 
-  const pageSelectOptions =
-    pages === undefined ? [] : [pages.homePage, ...pages.pages];
-
-  const pageSelectValue =
+  const selectedPageId =
     prop?.type === "page"
-      ? pageSelectOptions.find(
-          (page) =>
-            page.id ===
-            (typeof prop.value === "string" ? prop.value : prop.value.pageId)
-        )
+      ? typeof prop.value === "string"
+        ? prop.value
+        : prop.value.pageId
       : undefined;
 
-  const sections = useStore(sectionsStore);
+  const sections = useStore($sections);
 
-  const sectionSelectOptions = pageSelectValue
-    ? sections.filter(({ pageId }) => pageId === pageSelectValue.id)
+  const sectionSelectOptions = selectedPageId
+    ? sections.filter(({ pageId }) => pageId === selectedPageId)
     : sections;
 
   const sectionInstanceId =
@@ -302,22 +357,35 @@ const BasePage = ({ prop, onChange }: BaseControlProps) => {
     <>
       <Row>
         <Select
-          value={pageSelectValue}
-          options={pageSelectOptions}
-          getLabel={getName}
-          getValue={getId}
-          onChange={({ id }) => onChange({ type: "page", value: id })}
+          value={selectedPageId}
+          options={allPages.map(getId)}
+          onChange={(id) => onChange({ type: "page", value: id })}
           placeholder="Choose page"
           fullWidth
-        />
+        >
+          {Array.from(pageSelectOptions).map(([folderId, { name, pages }]) => {
+            return (
+              <SelectGroup key={folderId}>
+                <SelectLabel>{name}</SelectLabel>
+                {pages.map((page) => {
+                  return (
+                    <SelectItem key={page.id} value={page.id}>
+                      {page.name}
+                    </SelectItem>
+                  );
+                })}
+              </SelectGroup>
+            );
+          })}
+        </Select>
       </Row>
       <Row>
         <Select
-          key={pageSelectValue?.id}
+          key={selectedPageId}
           disabled={sectionSelectOptions.length === 0}
           placeholder={
             sectionSelectOptions.length === 0
-              ? pageSelectValue
+              ? selectedPageId
                 ? "Selected page has no sections"
                 : "No sections available"
               : "Choose section"
@@ -360,7 +428,10 @@ const modes = {
 
 type Mode = keyof typeof modes;
 
-const propToMode = (prop?: UrlControlProps["prop"]): Mode => {
+const propToMode = (
+  prop: undefined | UrlControlProps["prop"],
+  value: string
+): Mode => {
   if (prop === undefined) {
     return "url";
   }
@@ -373,11 +444,11 @@ const propToMode = (prop?: UrlControlProps["prop"]): Mode => {
     return "attachment";
   }
 
-  if (prop.value.startsWith("tel:")) {
+  if (value.startsWith("tel:")) {
     return "phone";
   }
 
-  if (prop.value.startsWith("mailto:")) {
+  if (value.startsWith("mailto:")) {
     return "email";
   }
 
@@ -389,29 +460,35 @@ export const UrlControl = ({
   meta,
   prop,
   propName,
+  computedValue,
   deletable,
   onChange,
   onDelete,
 }: UrlControlProps) => {
-  const [mode, setMode] = useState<Mode>(propToMode(prop));
+  const value = String(computedValue ?? "");
+  const { value: mode, set: setMode } = useLocalValue<Mode>(
+    propToMode(prop, value),
+    () => {}
+  );
 
   const id = useId();
 
   const BaseControl = modes[mode].control;
 
+  const label = humanizeAttribute(meta.label || propName);
+  const { scope, aliases } = useStore($selectedInstanceScope);
+  const expression =
+    prop?.type === "expression" ? prop.value : JSON.stringify(computedValue);
+  const { overwritable, variant } = useBindingState(
+    prop?.type === "expression" ? prop.value : undefined
+  );
+
   return (
     <VerticalLayout
       label={
-        <Box css={{ position: "relative" }}>
-          <Label htmlFor={id} description={meta.description}>
-            {getLabel(meta, propName)}
-          </Label>
-          <VariablesButton
-            propId={prop?.id}
-            propName={propName}
-            propMeta={meta}
-          />
-        </Box>
+        <Label htmlFor={id} description={meta.description}>
+          {label}
+        </Label>
       }
       deletable={deletable}
       onDelete={onDelete}
@@ -427,6 +504,7 @@ export const UrlControl = ({
       >
         <ToggleGroup
           type="single"
+          disabled={overwritable === false}
           value={mode}
           onValueChange={(value) => {
             // too tricky to prove to TS that value is a Mode
@@ -442,13 +520,34 @@ export const UrlControl = ({
         </ToggleGroup>
       </Flex>
 
-      <BaseControl
-        id={id}
-        instanceId={instanceId}
-        prop={prop}
-        onChange={onChange}
-        onDelete={onDelete}
-      />
+      <BindingControl>
+        <BaseControl
+          id={id}
+          instanceId={instanceId}
+          readOnly={overwritable === false}
+          prop={prop}
+          value={value}
+          onChange={onChange}
+          onDelete={onDelete}
+        />
+        <BindingPopover
+          scope={scope}
+          aliases={aliases}
+          validate={(value) => {
+            if (value !== undefined && typeof value !== "string") {
+              return `${label} expects a string value, page or file`;
+            }
+          }}
+          variant={variant}
+          value={expression}
+          onChange={(newExpression) =>
+            onChange({ type: "expression", value: newExpression })
+          }
+          onRemove={(evaluatedValue) =>
+            onChange({ type: "string", value: String(evaluatedValue) })
+          }
+        />
+      </BindingControl>
     </VerticalLayout>
   );
 };

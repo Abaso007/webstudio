@@ -1,35 +1,64 @@
-import { atom, computed } from "nanostores";
+import { atom } from "nanostores";
 import type { Instances } from "@webstudio-is/sdk";
 import type { InstanceSelector } from "../tree-utils";
 
-export const isResizingCanvasStore = atom(false);
+export const $isResizingCanvas = atom(false);
 
-export const selectedInstanceSelectorStore = atom<undefined | InstanceSelector>(
+export const $selectedInstanceSelector = atom<undefined | InstanceSelector>(
   undefined
 );
-export const $selectedInstanceSelector = selectedInstanceSelectorStore;
 
-export const editingItemIdStore = atom<undefined | string>(undefined);
-
-export const textEditingInstanceSelectorStore = atom<
-  undefined | InstanceSelector
->();
-
-export const instancesStore = atom<Instances>(new Map());
-export const $instances = instancesStore;
-
-export const selectedInstanceStore = computed(
-  [instancesStore, selectedInstanceSelectorStore],
-  (instances, selectedInstanceSelector) => {
-    if (selectedInstanceSelector === undefined) {
-      return;
-    }
-    const [selectedInstanceId] = selectedInstanceSelector;
-    return instances.get(selectedInstanceId);
-  }
+export const $editingItemSelector = atom<undefined | InstanceSelector>(
+  undefined
 );
 
-export const synchronizedInstancesStores = [
-  ["textEditingInstanceSelector", textEditingInstanceSelectorStore],
-  ["isResizingCanvas", isResizingCanvasStore],
-] as const;
+export const $textEditingInstanceSelector = atom<
+  | undefined
+  | {
+      selector: InstanceSelector;
+      reason: "right" | "left" | "enter";
+    }
+  | {
+      selector: InstanceSelector;
+      reason: "new";
+    }
+  | {
+      selector: InstanceSelector;
+      reason: "click";
+      mouseX: number;
+      mouseY: number;
+    }
+  | {
+      selector: InstanceSelector;
+      reason: "up" | "down";
+      cursorX: number;
+    }
+>();
+
+export const $textEditorContextMenu = atom<
+  | {
+      cursorRect: DOMRect;
+    }
+  | undefined
+>(undefined);
+
+type ContextMenuCommand =
+  | {
+      type: "filter";
+      value: string;
+    }
+  | { type: "selectNext" }
+  | { type: "selectPrevious" }
+  | { type: "enter" };
+
+export const $textEditorContextMenuCommand = atom<
+  undefined | ContextMenuCommand
+>(undefined);
+
+export const execTextEditorContextMenuCommand = (
+  command: ContextMenuCommand
+) => {
+  $textEditorContextMenuCommand.set(command);
+};
+
+export const $instances = atom<Instances>(new Map());

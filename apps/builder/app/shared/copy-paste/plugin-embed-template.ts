@@ -1,21 +1,11 @@
 import { z } from "zod";
+import { WsEmbedTemplate } from "@webstudio-is/sdk";
+import { generateDataFromEmbedTemplate } from "@webstudio-is/react-sdk";
+import { $registeredComponentMetas } from "../nano-states";
 import {
-  WsEmbedTemplate,
-  generateDataFromEmbedTemplate,
-} from "@webstudio-is/react-sdk";
-import {
-  selectedInstanceSelectorStore,
-  instancesStore,
-  selectedPageStore,
-  registeredComponentMetasStore,
-  breakpointsStore,
-} from "../nano-states";
-import {
-  computeInstancesConstraints,
-  findClosestDroppableTarget,
-  insertTemplateData,
+  findClosestInsertable,
+  insertWebstudioFragmentAt,
 } from "../instance-utils";
-import { isBaseBreakpoint } from "../breakpoints";
 
 const version = "@webstudio/template";
 
@@ -32,46 +22,17 @@ const parse = (clipboardData: string): WsEmbedTemplate | undefined => {
 
 export const mimeType = "text/plain";
 
-export const onPaste = (clipboardData: string): boolean => {
+export const onPaste = (clipboardData: string) => {
   const template = parse(clipboardData);
-
-  const selectedPage = selectedPageStore.get();
-
-  if (template === undefined || selectedPage === undefined) {
+  if (template === undefined) {
     return false;
   }
-
-  // paste to the root if nothing is selected
-  const instanceSelector = selectedInstanceSelectorStore.get() ?? [
-    selectedPage.rootInstanceId,
-  ];
-  const breakpoints = breakpointsStore.get();
-  const breakpointValues = Array.from(breakpoints.values());
-  const baseBreakpoint = breakpointValues.find(isBaseBreakpoint);
-  if (baseBreakpoint === undefined) {
+  const metas = $registeredComponentMetas.get();
+  const fragment = generateDataFromEmbedTemplate(template, metas);
+  const insertable = findClosestInsertable(fragment);
+  if (insertable === undefined) {
     return false;
   }
-  const metas = registeredComponentMetasStore.get();
-  const templateData = generateDataFromEmbedTemplate(
-    template,
-    metas,
-    baseBreakpoint.id
-  );
-  const newInstances = new Map(
-    templateData.instances.map((instance) => [instance.id, instance])
-  );
-  const rootInstanceIds = templateData.children
-    .filter((child) => child.type === "id")
-    .map((child) => child.value);
-  const dropTarget = findClosestDroppableTarget(
-    metas,
-    instancesStore.get(),
-    instanceSelector,
-    computeInstancesConstraints(metas, newInstances, rootInstanceIds)
-  );
-  if (dropTarget === undefined) {
-    return false;
-  }
-  insertTemplateData(templateData, dropTarget);
+  insertWebstudioFragmentAt(fragment, insertable);
   return true;
 };
